@@ -10,5 +10,6 @@ dependencies = [
     "djangorestframework>=3.16.0",
     "djangorestframework-simplejwt>=5.5.0",
     "email-validator>=2.2.0",
+    "requests>=2.32.4",
     "tzdata>=2025.2",
 ]

@@ -12,3 +12,11 @@ class AbstractUserRepository(abc.ABC):
     @abc.abstractmethod
     def exists_by_email(self, email: Email) -> bool:
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_by_id(self, user_id: int) -> User:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def update(self, user: User):
+        raise NotImplementedError

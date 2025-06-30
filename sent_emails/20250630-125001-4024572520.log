@@ -1,0 +1,18 @@
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Verifique seu Email para o TCC_backend
+From: webmaster@localhost
+To: finaltestuser@example.com
+Date: Mon, 30 Jun 2025 12:50:01 -0000
+Message-ID: <175128780156.5333.5566558372794104231@localhost>
+
+Olá!
+
+Obrigado por se registrar no TCC_backend. Por favor, clique no link abaixo para verificar seu email:
+
+http://localhost:8000/api/auth/verify-email/?email=finaltestuser@example.com&token=IZXYgTaqewRP9nY3EKxTrf5vHiWBkTHoGiVEJ_pDsiY
+
+Atenciosamente,
+Equipe TCC_backend
+-------------------------------------------------------------------------------
