@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
-from domain.accounts.entities import User as UserEntity
-from domain.accounts.repositories import AbstractUserRepository
+from domain.accounts.aggregates.account import User as UserEntity
+from domain.accounts.repositories.account_repository import AbstractUserRepository
 from domain.accounts.value_objects.email import Email
 
 DjangoUser = get_user_model()

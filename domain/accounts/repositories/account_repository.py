@@ -1,5 +1,5 @@
 import abc
-from .entities import User
+from ..aggregates.account import User
 from .value_objects.email import Email
 class AbstractUserRepository(abc.ABC):
     """

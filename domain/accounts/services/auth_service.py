@@ -1,7 +1,7 @@
 import secrets
-from .factories import UserFactory
-from .repositories import AbstractUserRepository
-from .entities import User
+from ..factories.account_factory import UserFactory
+from ..repositories.account_repository import AbstractUserRepository
+from ..aggregates.account import User
 from accounts.email_utils import send_verification_email
 
 class UserAlreadyExistsError(Exception):

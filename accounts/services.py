@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from domain.accounts.services import ChangePasswordService, InvalidOldPasswordError, UserProfileService
+from domain.accounts.services.auth_service import ChangePasswordService, InvalidOldPasswordError, UserProfileService
 from accounts.repositories import DjangoUserRepository
 
 User = get_user_model()
