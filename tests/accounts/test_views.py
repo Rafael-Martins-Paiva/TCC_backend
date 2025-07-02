@@ -31,7 +31,7 @@ class UserRegistrationAPITest(APITestCase):
     @patch('accounts.views.RegistrationService.register_user')
     def test_user_registration_existing_email(self, mock_register_user):
         """Test registration with an email that already exists."""
-        from domain.accounts.services import UserAlreadyExistsError
+        from domain.accounts.services.auth_service import UserAlreadyExistsError
         mock_register_user.side_effect = UserAlreadyExistsError("User with this email already exists.")
 
         response = self.client.post(self.register_url, self.user_data, format='json')

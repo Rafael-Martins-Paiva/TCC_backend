@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import User
-from domain.accounts.value_objects.email import Email, InvalidEmailError
+from domain.accounts.aggregates.value_objects.email import Email, InvalidEmailError
 
 class EmailField(serializers.Field):
     """Campo de serializer customizado para o Value Object Email."""

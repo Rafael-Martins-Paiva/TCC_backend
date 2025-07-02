@@ -6,7 +6,7 @@ from .serializers import UserRegistrationSerializer, EmailVerificationSerializer
 from .repositories import DjangoUserRepository
 from .services import ChangePasswordApplicationService
 from domain.accounts.services.auth_service import RegistrationService, UserAlreadyExistsError, EmailVerificationService, InvalidVerificationTokenError, InvalidOldPasswordError
-from domain.accounts.value_objects.email import InvalidEmailError
+from domain.accounts.aggregates.value_objects.email import InvalidEmailError
 
 class UserRegistrationAPIView(generics.GenericAPIView):
     serializer_class = UserRegistrationSerializer

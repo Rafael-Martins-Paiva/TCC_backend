@@ -1,6 +1,6 @@
 import abc
 from ..aggregates.account import User
-from .value_objects.email import Email
+from ..aggregates.value_objects.email import Email
 class AbstractUserRepository(abc.ABC):
     """
     Define a interface (contrato) para um repositório de usuários.

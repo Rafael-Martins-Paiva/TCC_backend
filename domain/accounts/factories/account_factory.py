@@ -1,6 +1,6 @@
 from django.contrib.auth.hashers import make_password
 from ..aggregates.account import User
-from .value_objects.email import Email
+from ..aggregates.value_objects.email import Email
 class UserFactory:
     """Fábrica para criar instâncias da entidade User."""
     @staticmethod
