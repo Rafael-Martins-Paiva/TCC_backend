@@ -7,6 +7,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from pathlib import Path
+import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '%-8ue@e!raj1_6oo+a@wbwkb%026wz*93d@n*f8o+nsp9$%+^='
 DEBUG = True
@@ -21,14 +22,18 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+ #   'drf_spectacular',
     'django_extensions',
-    'accounts'
+    'accounts',
+    'users'
 ]
 AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
+#    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -57,6 +62,10 @@ TEMPLATES = [
     },
 ]
 WSGI_APPLICATION = 'core.wsgi.application'
+import sys
+
+# ... (rest of the file)
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -67,6 +76,12 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:'
+    }
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

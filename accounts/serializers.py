@@ -56,10 +56,13 @@ class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         # Lista de campos que o usuário PODE alterar.
-        fields = ('first_name', 'last_name', 'bio')
+        fields = ('first_name', 'last_name', 'bio', 'email')
         extra_kwargs = {
             # Garante que os campos são opcionais no PATCH
             'first_name': {'required': False},
             'last_name': {'required': False},
             'bio': {'required': False},
         }
+
+    def validate_email(self, value):
+        raise serializers.ValidationError('Email cannot be updated.')
