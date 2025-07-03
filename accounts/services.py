@@ -13,8 +13,9 @@ class ChangePasswordApplicationService:
 
     def change_password(self, user: User, old_password: str, new_password: str) -> User:
         try:
-            updated_user = self.change_password_domain_service.change_password(user, old_password, new_password)
-            return updated_user
+            user_entity = self.user_repository._to_entity(user)
+            updated_user_entity = self.change_password_domain_service.change_password(user_entity, old_password, new_password)
+            return User.objects.get(id=updated_user_entity.id)
         except InvalidOldPasswordError as e:
             raise e
 
