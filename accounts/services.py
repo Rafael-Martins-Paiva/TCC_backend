@@ -1,30 +1,12 @@
 from django.contrib.auth import get_user_model
-from domain.accounts.services.auth_service import ChangePasswordService, InvalidOldPasswordError, UserProfileService
+from domain.accounts.services.change_password_service import ChangePasswordService
+from domain.accounts.exceptions.auth_exceptions import InvalidOldPasswordError
+from domain.accounts.services.user_profile_service import UserProfileService
 from accounts.repositories import DjangoUserRepository
 
 User = get_user_model()
 
-class UserService:
-    def create_user(self, user_data: dict) -> User:
-        """
-        Cria um novo usuário no sistema usando o CustomUserManager.
-        """
-        
-        password = user_data.pop('password')
-        email = user_data.pop('email')
-        
-        
-        
-        user_data.pop('password2', None)
-        
-        
-        user = User.objects.create_user(email=email, password=password, **user_data)
-        
-        return user
-
-
 class ChangePasswordApplicationService:
-    """Serviço de aplicação para mudança de senha."""
     def __init__(self):
         self.user_repository = DjangoUserRepository()
         self.change_password_domain_service = ChangePasswordService(self.user_repository)
@@ -38,17 +20,10 @@ class ChangePasswordApplicationService:
 
 class UserApplicationService:
     def __init__(self):
-        # A implementação concreta do repositório é injetada aqui
         user_repository = DjangoUserRepository()
-        # O serviço de domínio recebe a abstração do repositório
         self.domain_service = UserProfileService(user_repository)
 
     def update_user_info(self, user_id: int, data: dict) -> User:
-        """
-        Orquestra a atualização de informações do usuário.
-        """
-        # Chama a lógica de negócio real no serviço de domínio
         self.domain_service.update_profile(user_id=user_id, update_data=data)
 
-        # Retorna o modelo Django atualizado para a View
         return User.objects.get(id=user_id)

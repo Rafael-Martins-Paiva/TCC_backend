@@ -5,7 +5,9 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import UserRegistrationSerializer, EmailVerificationSerializer, ResendVerificationEmailSerializer, ChangePasswordSerializer
 from .repositories import DjangoUserRepository
 from .services import ChangePasswordApplicationService
-from domain.accounts.services.auth_service import RegistrationService, UserAlreadyExistsError, EmailVerificationService, InvalidVerificationTokenError, InvalidOldPasswordError
+from domain.accounts.services.registration_service import RegistrationService
+from domain.accounts.services.email_verification_service import EmailVerificationService
+from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError, InvalidVerificationTokenError, InvalidOldPasswordError
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
 
 class UserRegistrationAPIView(generics.GenericAPIView):
@@ -25,8 +27,7 @@ class UserRegistrationAPIView(generics.GenericAPIView):
             
             registration_service.register_user(
                 email=str(data['email']), 
-                first_name=data.get('first_name', ''),
-                last_name=data.get('last_name', ''),
+                name=data.get('name', ''),
                 password=data['password']
             )
         except UserAlreadyExistsError as e:
@@ -80,8 +81,6 @@ class ResendVerificationEmailAPIView(generics.GenericAPIView):
             user = email_verification_service.resend_verification_email(
                 email=data['email']
             )
-            # TODO: Send actual email here
-            print(f"DEBUG: Reenviar email de verificação para {user.email} com token {user.verification_token}")
         except UserAlreadyExistsError as e:
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
 

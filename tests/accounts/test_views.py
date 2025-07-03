@@ -11,16 +11,14 @@ class UserRegistrationAPITest(APITestCase):
         self.register_url = reverse('user-register')
         self.user_data = {
             'email': 'test@example.com',
-            'first_name': 'Test',
-            'last_name': 'User',
+            'name': 'Test User',
             'password': 'StrongPassword123',
             'password2': 'StrongPassword123'
         }
 
     @patch('accounts.views.RegistrationService.register_user')
     def test_user_registration_success(self, mock_register_user):
-        """Test successful user registration."""
-        mock_register_user.return_value = None # Simulate successful registration
+        mock_register_user.return_value = None 
 
         response = self.client.post(self.register_url, self.user_data, format='json')
         self.assertEqual(response.status_code, 201)
@@ -30,8 +28,7 @@ class UserRegistrationAPITest(APITestCase):
 
     @patch('accounts.views.RegistrationService.register_user')
     def test_user_registration_existing_email(self, mock_register_user):
-        """Test registration with an email that already exists."""
-        from domain.accounts.services.auth_service import UserAlreadyExistsError
+        from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError
         mock_register_user.side_effect = UserAlreadyExistsError("User with this email already exists.")
 
         response = self.client.post(self.register_url, self.user_data, format='json')
@@ -41,7 +38,6 @@ class UserRegistrationAPITest(APITestCase):
         mock_register_user.assert_called_once()
 
     def test_user_registration_invalid_email(self):
-        """Test registration with an invalid email format."""
         invalid_email_data = self.user_data.copy()
         invalid_email_data['email'] = 'invalid-email'
         response = self.client.post(self.register_url, invalid_email_data, format='json')
@@ -50,22 +46,18 @@ class UserRegistrationAPITest(APITestCase):
         self.assertEqual(response.data['email'][0], 'Endereço de e-mail inválido: invalid-email')
 
     def test_user_registration_missing_required_fields(self):
-        """Test registration with missing required fields."""
-        # Missing email
         missing_email_data = self.user_data.copy()
         missing_email_data.pop('email')
         response = self.client.post(self.register_url, missing_email_data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertIn('email', response.data)
 
-        # Missing password
         missing_password_data = self.user_data.copy()
         missing_password_data.pop('password')
         response = self.client.post(self.register_url, missing_password_data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertIn('password', response.data)
 
-        # Missing password2
         missing_password2_data = self.user_data.copy()
         missing_password2_data.pop('password2')
         response = self.client.post(self.register_url, missing_password2_data, format='json')
@@ -73,7 +65,6 @@ class UserRegistrationAPITest(APITestCase):
         self.assertIn('password2', response.data)
 
     def test_user_registration_password_mismatch(self):
-        """Test registration with mismatched passwords."""
         mismatched_password_data = self.user_data.copy()
         mismatched_password_data['password2'] = 'DifferentPassword123'
         response = self.client.post(self.register_url, mismatched_password_data, format='json')
@@ -82,7 +73,6 @@ class UserRegistrationAPITest(APITestCase):
         self.assertEqual(response.data['password'][0], 'As senhas não coincidem.')
 
     def test_user_registration_optional_fields(self):
-        """Test registration without optional fields (first_name, last_name)."""
         data_without_optional = {
             'email': 'no_optional@example.com',
             'password': 'StrongPassword123',
@@ -94,8 +84,7 @@ class UserRegistrationAPITest(APITestCase):
             self.assertEqual(response.status_code, 201)
             mock_register_user.assert_called_once_with(
                 email='no_optional@example.com',
-                first_name='', # Should be empty string if not provided
-                last_name='',  # Should be empty string if not provided
+                name='', 
                 password='StrongPassword123'
             )
 
