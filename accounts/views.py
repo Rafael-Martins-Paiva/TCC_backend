@@ -1,12 +1,14 @@
 from rest_framework import generics, status
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
-from .serializers import UserRegistrationSerializer, EmailVerificationSerializer, ResendVerificationEmailSerializer, ChangePasswordSerializer
+from .serializers import UserRegistrationSerializer, EmailVerificationSerializer, ResendVerificationEmailSerializer, ChangePasswordSerializer, LogoutSerializer
 from .repositories import DjangoUserRepository
 from .services import ChangePasswordApplicationService
 from domain.accounts.services.registration_service import RegistrationService
 from domain.accounts.services.email_verification_service import EmailVerificationService
+from domain.accounts.services.logout_service import LogoutService
 from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError, InvalidVerificationTokenError, InvalidOldPasswordError
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
 
@@ -108,5 +110,17 @@ class ChangePasswordAPIView(generics.GenericAPIView):
             return Response({"old_password": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Senha alterada com sucesso."}, status=status.HTTP_200_OK)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        serializer = LogoutSerializer(data=request.data)
+        if serializer.is_valid():
+            service = LogoutService()
+            result = service.logout(serializer.validated_data['refresh'])
+            if 'error' in result:
+                return Response(result, status=status.HTTP_400_BAD_REQUEST)
+            return Response(result, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

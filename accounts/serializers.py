@@ -57,3 +57,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
 
     def validate_email(self, value):
         raise serializers.ValidationError('Email cannot be updated.')
+
+class LogoutSerializer(serializers.Serializer):
+    refresh = serializers.CharField()

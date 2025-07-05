@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
+from rest_framework_simplejwt.tokens import RefreshToken
 
 User = get_user_model()
 
@@ -9,12 +10,23 @@ class UserRegistrationAPITest(APITestCase):
 
     def setUp(self):
         self.register_url = reverse('user-register')
+        self.logout_url = reverse('logout')
+        self.user = User.objects.create_user(email='test@example.com', password='password123')
+        self.refresh_token = RefreshToken.for_user(self.user)
         self.user_data = {
             'email': 'test@example.com',
             'name': 'Test User',
             'password': 'StrongPassword123',
             'password2': 'StrongPassword123'
         }
+
+    @patch('accounts.views.LogoutService.logout')
+    def test_logout_success(self, mock_logout):
+        mock_logout.return_value = {"success": "User logged out successfully."}
+        response = self.client.post(self.logout_url, {'refresh': str(self.refresh_token)}, format='json')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('success', response.data)
+        mock_logout.assert_called_once_with(str(self.refresh_token))
 
     @patch('accounts.views.RegistrationService.register_user')
     def test_user_registration_success(self, mock_register_user):
