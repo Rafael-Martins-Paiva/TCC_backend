@@ -25,7 +25,8 @@ INSTALLED_APPS = [
  #   'drf_spectacular',
     'django_extensions',
     'accounts',
-    'users'
+    'users',
+    'restaurants'
 ]
 AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
