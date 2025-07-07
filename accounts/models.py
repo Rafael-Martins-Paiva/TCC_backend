@@ -15,7 +15,7 @@ class User(AbstractUser):
     verification_token = models.CharField(max_length=255, blank=True, null=True)
 
     bio = models.TextField(max_length=500, blank=True)
-    has_paid_plan = models.BooleanField(default=False) # New field for paid plan
+    has_paid_plan = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 

@@ -8,8 +8,6 @@ class Email:
     def __post_init__(self):
         try:
             
-            
-            
             valid = validate_email(self.value, check_deliverability=False)
             
             

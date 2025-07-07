@@ -62,7 +62,7 @@ class EmailVerificationAPIView(generics.GenericAPIView):
             )
         except InvalidVerificationTokenError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except UserAlreadyExistsError as e: # This can happen if email is not found
+        except UserAlreadyExistsError as e:
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
 
         return Response({"message": "Email verificado com sucesso."}, status=status.HTTP_200_OK)
@@ -122,5 +122,3 @@ class LogoutView(APIView):
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)
             return Response(result, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
