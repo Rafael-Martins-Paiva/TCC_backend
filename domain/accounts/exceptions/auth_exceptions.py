@@ -6,3 +6,12 @@ class InvalidVerificationTokenError(Exception):
 
 class InvalidOldPasswordError(Exception):
     pass
+
+class UserNotFoundError(Exception):
+    pass
+
+class InvalidCredentialsError(Exception):
+    pass
+
+class UserNotVerifiedError(Exception):
+    pass

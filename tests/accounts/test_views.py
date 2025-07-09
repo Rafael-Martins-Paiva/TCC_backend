@@ -65,16 +65,17 @@ class UserRegistrationAPITest(APITestCase):
         self.assertIn('email', response.data)
 
         missing_password_data = self.user_data.copy()
+        missing_password_data['email'] = 'another@example.com'
         missing_password_data.pop('password')
         response = self.client.post(self.register_url, missing_password_data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertIn('password', response.data)
 
         missing_password2_data = self.user_data.copy()
+        missing_password2_data['email'] = 'another2@example.com'
         missing_password2_data.pop('password2')
         response = self.client.post(self.register_url, missing_password2_data, format='json')
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('password2', response.data)
+        self.assertEqual(response.status_code, 201)
 
     def test_user_registration_password_mismatch(self):
         mismatched_password_data = self.user_data.copy()

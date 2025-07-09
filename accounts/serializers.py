@@ -17,10 +17,10 @@ class UserRegistrationSerializer(serializers.Serializer):
     email = EmailField()
     name = serializers.CharField(max_length=255, required=False, allow_blank=True)
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
-    password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, style={'input_type': 'password'}, required=False)
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
+        if 'password2' in attrs and attrs['password'] != attrs['password2']:
             raise serializers.ValidationError({"password": "As senhas não coincidem."})
         return attrs
 

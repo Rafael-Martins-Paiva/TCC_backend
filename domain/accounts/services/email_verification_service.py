@@ -4,7 +4,7 @@ from ..aggregates.account import User
 from domain.events.dispatcher import dispatcher
 from ..events.email_verified import EmailVerified
 from ..events.user_registered import UserRegistered
-from ..exceptions.auth_exceptions import InvalidVerificationTokenError, UserAlreadyExistsError
+from ..exceptions.auth_exceptions import InvalidVerificationTokenError, UserNotFoundError
 
 class EmailVerificationService:
     def __init__(self, user_repository: AbstractUserRepository):
@@ -24,7 +24,7 @@ class EmailVerificationService:
     def resend_verification_email(self, email: str) -> User:
         user = self.user_repository.get_by_email(email)
         if not user:
-            raise UserAlreadyExistsError(f"Usuário com e-mail {email} não encontrado.")
+            raise UserNotFoundError(f"Usuário com e-mail {email} não encontrado.")
         
         if user.is_verified:
             return user
