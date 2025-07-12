@@ -62,8 +62,28 @@ class EmailVerificationAPIView(generics.GenericAPIView):
             )
         except InvalidVerificationTokenError as e:
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-        except UserAlreadyExistsError as e:
+        except UserAlreadyExistsError as e: # This exception type seems wrong here, should be UserNotFoundError
             return Response({"detail": str(e)}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response({"message": "Email verificado com sucesso."}, status=status.HTTP_200_OK)
+
+    def get(self, request, *args, **kwargs):
+        email = request.query_params.get('email')
+        token = request.query_params.get('token')
+
+        if not email or not token:
+            return Response({"detail": "Email e token são obrigatórios."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user_repo = DjangoUserRepository()
+        email_verification_service = EmailVerificationService(user_repository=user_repo)
+
+        try:
+            email_verification_service.verify_email(
+                email=email,
+                token=token
+            )
+        except InvalidVerificationTokenError as e:
+            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Email verificado com sucesso."}, status=status.HTTP_200_OK)
 

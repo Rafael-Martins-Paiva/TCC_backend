@@ -22,6 +22,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
  #   'drf_spectacular',
     'django_extensions',
     'accounts',
@@ -65,8 +66,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'core.wsgi.application'
 import sys
 
-# ... (rest of the file)
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -104,12 +103,16 @@ USE_TZ = True
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SIMPLE_JWT = {
+    'BLACKLIST_AFTER_ROTATION': True,
+}
+
 BASE_VERIFICATION_URL = 'http://localhost:3000'
 
-# EMAIL_BACKEND =  'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND =  'django.core.mail.backends.console.EmailBackend'
 
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'  
+# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'  
 
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'rafael.martins.paiva0@gmail.com'
