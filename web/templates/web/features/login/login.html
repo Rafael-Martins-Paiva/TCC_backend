@@ -1,0 +1,65 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'web/css/features/login/login.css' %}">
+{% endblock %}
+
+{% block content %}
+    <!-- container centralizado com base no tamanho da janela-->
+    <div id ="logContainer">
+
+        <h id="logH"> Welcome back</h>
+        <p id="logTxt">Today is a new day, So log in to start 
+        <br>managing</p>
+
+        <div style="margin-top: 30px;">
+            <!-- container dos inputs -->
+            
+            <p class="logTxt">Email</p>
+            <input class="logInputTxt" type="text" id="email" name="email" placeholder="Example@email.com">
+
+            <p class="logTxt">Password</p>
+
+            <!--falta declarar os requisitos do input (ex: not null)-->
+            <input class="logInputTxt" type="password" id="password" name="password" placeholder="At least 8 caracters">
+        </div>
+
+        <div>
+            <a href="#" class="defaultLink" id="forgotPassword">Forgot the Password?</a> <!-- falta adicionar a referência-->   
+
+            <button class="btnSI">Sign In</button>
+
+
+<!--parte copiada-->
+            <div class="divider">
+
+  <span>Or</span>
+    </div>
+<!---->
+            </div>
+
+            
+            
+            <button class="btnIcon">
+              <a class="signInWith SignInWith" href="#">
+                <img src="{% static 'web/img/google-icon.png' %}" alt="Google Icon" class="iconImg">
+                Sign in with Google
+              </a>
+            </button>
+
+            <button class="btnIcon">
+              <a class="signInWith SignInWith" href="#">
+                <img src="{% static 'web/img/facebook-icon.png' %}" alt="Facebook Icon" class="iconImg">
+                Sign in with Facebook
+              </a>
+            </button>
+
+            <p id="noAccount">Don't you have a account? <a href="#" class="defaultLink">Sign up</a></p> <!--não há referência-->
+
+
+            <p id="rightsReserved">@ 2023 ALL RIGHTS RESERVED</p>
+    </div>
+{% endblock %}

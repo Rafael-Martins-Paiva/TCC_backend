@@ -142,3 +142,48 @@ class LogoutView(APIView):
                 return Response(result, status=status.HTTP_400_BAD_REQUEST)
             return Response(result, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from django.conf import settings
+from google.oauth2 import id_token
+from google.auth.transport import requests
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
+from .models import User
+
+class GoogleLoginCallbackView(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, *args, **kwargs):
+        token = request.data.get('id_token')
+        if not token:
+            return Response({'error': 'ID token is required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            CLIENT_ID = settings.SOCIALACCOUNT_PROVIDERS['google']['APP']['client_id']
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+
+            email = idinfo['email']
+            name = idinfo.get('name', '')
+
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                user = User.objects.create_user(email=email, name=name, password=None)
+                user.is_verified = True
+                user.save()
+
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'user': {
+                    'id': user.id,
+                    'email': user.email,
+                    'name': user.name,
+                }
+            })
+
+        except ValueError as e:
+            return Response({'error': f'Invalid token: {e}'}, status=status.HTTP_400_BAD_REQUEST)

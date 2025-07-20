@@ -1,0 +1,134 @@
+* {
+    box-sizing: border-box;
+    font-family: ui-rounded, sans-serif;
+}
+
+html, body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+#logContainer{
+    width: 370px;
+    padding: 40px;
+}
+
+#logH{
+    font-weight: bold;
+    font-size: 30px;
+    color: #313957;
+}
+
+#logTxt{
+   color: #313957; 
+}
+
+input.logInputTxt{
+    box-sizing: border-box;
+    border: 1px solid #180C0B;
+    border-radius: 10px;
+    width: 290px;
+    height: 40px;
+    text-indent: 1em;
+}
+
+a.defaultLink{ 
+    text-decoration: none;
+    color: #1D67DF;
+    margin-bottom: 20px;
+}
+
+#forgotPassword{
+    margin-top: 20px; 
+    text-align: right; 
+    display: block;
+}
+
+button.btnSI {
+    box-sizing: border-box;
+    border: 1px solid #180C0B; 
+    border-radius: 10px;
+    width: 100%;
+    height: 40px;
+    text-align: center;
+    background-color: #180C0B;
+    color: #F3F9FA;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button.btnSI:hover{
+    background-color: #616464;
+}
+
+button.btnIcon{
+    background-color: #F3F9FA;
+    border: 1px solid #F3F9FA;
+    border-radius: 10px;
+    width: 100%; /* Aumentado */
+    height: 45px; /* Aumentado */
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: flex; /* Usar flexbox para centralizar */
+    justify-content: center; /* Centralizar horizontalmente */
+    align-items: center; /* Centralizar verticalmente */
+    gap: 12px; /* Espaço entre ícone e texto */
+    padding: 0;
+}
+
+img.iconImg{
+    width: 22px; /* Diminuído */
+    height: 22px; /* Diminuído */
+    margin-right: 10px;
+}
+
+a.signInWith{
+    color: #313957;
+    text-decoration: none;
+    font-size: 14px; /* Diminuído */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+    
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    color: #999;
+    margin: 20px 0;
+}
+
+.divider::before,
+.divider::after {
+    content:"";
+    flex: 1;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.divider:not(:empty)::before {
+    margin-right: 10px;
+}
+
+.divider:not(:empty)::after {
+    margin-left: 10px;
+}
+
+#rightsReserved{
+    position: fixed; 
+    bottom: 0; text-align: 
+    bottom; margin-left: 25px; 
+    color: #959CB6;
+}
+
+#noAccount{
+    text-align: center;
+    color: #180C0B ;
+}

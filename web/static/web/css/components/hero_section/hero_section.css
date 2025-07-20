@@ -1,0 +1,153 @@
+
+.hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4rem;
+  gap: 3rem;
+  background: radial-gradient(circle at 20% 30%, #1c1c1e 0%, #0e0e10 100%);
+}
+
+.hero-text {
+  flex: 1;
+}
+
+.hero-text h4 {
+  font-size: 0.875rem;
+  color: #a1a1aa;
+  margin-bottom: 1rem;
+}
+
+.hero-text h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #f4f4f5;
+  margin-bottom: 1.5rem;
+}
+
+.hero-text p {
+  font-size: 1.125rem;
+  line-height: 1.7;
+  color: #d4d4d8;
+  max-width: 38rem;
+  margin-bottom: 2.5rem;
+}
+
+.buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.btn {
+  padding: 0.9rem 1.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.btn-primary {
+  background: #ffffff;
+  color: #000000;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #ffffff;
+  border: 1px solid #3f3f46;
+}
+
+.trusted {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #a1a1aa;
+  font-size: 0.875rem;
+}
+
+.avatars {
+  display: flex;
+  position: relative;
+  margin-left: 0.5rem;
+}
+
+.avatars img {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 2px solid #0e0e10;
+  margin-left: -10px;
+  z-index: 1;
+}
+
+.avatars img:first-child {
+  margin-left: 0;
+  z-index: 4;
+}
+
+.avatars img:nth-child(2) {
+  z-index: 3;
+}
+
+.avatars img:nth-child(3) {
+  z-index: 2;
+}
+
+.avatars img:nth-child(4) {
+  z-index: 1;
+}
+
+.hero-image {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.hero-image img {
+  width: 100%;
+  max-width: 520px;
+  border-radius: 1rem;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  object-fit: cover;
+  position: relative;
+  z-index: 2;
+}
+
+.image-blur-top-left {
+  position: absolute;
+  top: -40px;
+  left: -40px;
+  width: 180px;
+  height: 180px;
+  background: #3E3247;
+  filter: blur(80px);
+  border-radius: 50%;
+  z-index: 1;
+}
+
+@media (max-width: 960px) {
+  .hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 1.5rem;
+  }
+  
+  .hero-image {
+    order: -1;
+    margin-bottom: 2rem;
+  }
+  
+  .hero-text h1 {
+    font-size: 2.25rem;
+  }
+  
+  .hero-text p {
+    font-size: 1rem;
+  }
+}

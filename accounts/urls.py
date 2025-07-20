@@ -1,5 +1,12 @@
 from django.urls import path
-from .views import UserRegistrationAPIView, EmailVerificationAPIView, ResendVerificationEmailAPIView, ChangePasswordAPIView, LogoutView
+from .views import (
+    UserRegistrationAPIView, 
+    EmailVerificationAPIView, 
+    ResendVerificationEmailAPIView, 
+    ChangePasswordAPIView, 
+    LogoutView, 
+    GoogleLoginCallbackView
+)
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -13,4 +20,5 @@ urlpatterns = [
     path('logout/', LogoutView.as_view(), name='logout'),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('google/login/', GoogleLoginCallbackView.as_view(), name='google_login'),
 ]

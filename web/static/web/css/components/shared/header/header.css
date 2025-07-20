@@ -1,0 +1,66 @@
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2.5rem 4rem 1rem;
+  background: radial-gradient(circle at 20% 30%, #1c1c1e 0%, #0e0e10 100%);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.logo-icon {
+  background: #ffffff;
+  color: #000000;
+  border-radius: 0.5rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-size: 0.95rem;
+  color: #e4e4e7;
+}
+
+nav a {
+  text-decoration: none;
+  color: inherit;
+  font-weight: 500;
+}
+
+.get-started-btn {
+  background: #ffffff;
+  color: #000000;
+  padding: 0.55rem 1.25rem;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  margin-left: 1rem;
+}
+
+@media (max-width: 960px) {
+  header {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2rem 1.5rem 1rem;
+  }
+  
+  nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}

@@ -19,16 +19,60 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'corsheaders',
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
- #   'drf_spectacular',
     'django_extensions',
+    'django.contrib.sites', 
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google', 
+    'dj_rest_auth',
+    'dj_rest_auth.registration',
     'accounts',
+    'restaurants',
     'users',
-    'restaurants'
+    'web',
 ]
+
+TOKEN_MODEL = None
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+        'APP': {
+            'client_id': '160197012428-jfhsli9au8r8nu4k70pmbv3kqcr105v7.apps.googleusercontent.com',
+            'secret': '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',
+            'key': '' 
+        }
+    }
+}
+
+ACCOUNT_LOGIN_METHODS = ['email']
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+ACCOUNT_FORMS = {'signup': 'accounts.forms.CustomSignupForm'}
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+LOGIN_REDIRECT_URL = '/accounts/google/callback/'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
 AUTH_USER_MODEL = 'accounts.User'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -37,9 +81,17 @@ REST_FRAMEWORK = {
 
 #    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+REST_USE_JWT = True
+ACCOUNT_ADAPTER = 'accounts.adapter.CustomAccountAdapter'
+
+REST_AUTH_SERIALIZERS = {
+    'LOGIN_SERIALIZER': 'dj_rest_auth.jwt_auth.JWTLoginSerializer',
+}
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'allauth.account.middleware.AccountMiddleware', # Adicione esta linha
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

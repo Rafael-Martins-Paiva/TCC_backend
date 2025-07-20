@@ -1,0 +1,24 @@
+
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'web/css/components/slide_show/slide_show.css' %}">
+
+<div class="slide-show-container">
+    <h1>{{ title }}</h1>
+    <p class="description">{{ description }}</p>
+    <div class="gif-container" id="gifContainer">
+        <img id="activeImage" alt="Preview GIF" data-image-index="0" />
+    </div>
+
+    <div class="tabs">
+        {% for tab in tabs %}
+            <span data-tab-index="{{ forloop.counter0 }}">{{ tab }}</span>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    // Pass Django context to JavaScript
+    const images = {{ images|safe }};
+</script>
+<script src="{% static 'web/js/components/slide_show/slide_show.js' %}"></script>

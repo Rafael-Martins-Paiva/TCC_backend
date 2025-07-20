@@ -1,0 +1,17 @@
+
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Landing Page{% endblock %}
+
+{% block content %}
+    {% include 'web/components/shared/header/header.html' %}
+
+    {% include 'web/components/hero_section/hero_section.html' %}
+
+    {% include 'web/components/slide_show/slide_show.html' with title="Say hi to new data" description="Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat." tabs=tabs images=images %}
+
+    <h1>Welcome to the Landing Page!</h1>
+    <p>This is a temporary landing page.</p>
+    <p>Go to <a href="{% url 'web:login' %}">Login</a></p>
+{% endblock %}
