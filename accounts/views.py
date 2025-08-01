@@ -11,11 +11,13 @@ from domain.accounts.services.email_verification_service import EmailVerificatio
 from domain.accounts.services.logout_service import LogoutService
 from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError, InvalidVerificationTokenError, InvalidOldPasswordError
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
+from core.decorators import rate_limit
 
 class UserRegistrationAPIView(generics.GenericAPIView):
     serializer_class = UserRegistrationSerializer
     permission_classes = [AllowAny]
 
+    @rate_limit(max_calls=5, window=300) # Limita a 5 registros a cada 5 minutos
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -91,6 +93,7 @@ class ResendVerificationEmailAPIView(generics.GenericAPIView):
     serializer_class = ResendVerificationEmailSerializer
     permission_classes = [AllowAny]
 
+    @rate_limit(max_calls=3, window=600) # Limita a 3 reenvios a cada 10 minutos
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -151,10 +154,12 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
+from core.decorators import rate_limit
 
 class GoogleLoginCallbackView(APIView):
     permission_classes = [AllowAny]
 
+    @rate_limit(max_calls=10, window=60)
     def post(self, request, *args, **kwargs):
         token = request.data.get('id_token')
         if not token:

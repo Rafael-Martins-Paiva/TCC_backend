@@ -3,9 +3,11 @@ from django.urls import reverse
 from django.contrib.auth import get_user_model
 from unittest.mock import patch
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.test import override_settings
 
 User = get_user_model()
 
+@override_settings(DEBUG=True)
 class UserRegistrationAPITest(APITestCase):
 
     def setUp(self):

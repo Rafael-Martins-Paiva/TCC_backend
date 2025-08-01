@@ -10,8 +10,8 @@ from pathlib import Path
 import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = '%-8ue@e!raj1_6oo+a@wbwkb%026wz*93d@n*f8o+nsp9$%+^='
-DEBUG = True
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = ['127.0.0.1']
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -172,3 +172,13 @@ EMAIL_BACKEND =  'django.core.mail.backends.console.EmailBackend'
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = 'rafael.martins.paiva0@gmail.com'
 # EMAIL_HOST_PASSWORD = 'senha_appl'
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
