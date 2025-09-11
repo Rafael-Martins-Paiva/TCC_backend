@@ -10,7 +10,7 @@ class UserFactory:
             name=name,
             is_verified=is_verified,
             verification_token=verification_token,
-            hashed_password="" # Temporário, será definido por set_password
+            hashed_password="" #TODO: Temporário, será definido por set_password
         )
         user.set_password(password)
         return user
