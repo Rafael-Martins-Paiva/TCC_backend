@@ -1,0 +1,40 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'web/css/features/login/login.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div id="logContainer">
+        <h1 id="logH">Create an Account</h1>
+        <p id="logTxt">Join us today!</p>
+
+        <form method="post" action="{% url 'web:registration' %}">
+            {% csrf_token %}
+            <div style="margin-top: 30px;">
+                <p class="logTxt">Name</p>
+                {{ form.name }}
+
+                <p class="logTxt">Email</p>
+                {{ form.email }}
+
+                <p class="logTxt">Password</p>
+                {{ form.password }}
+
+                <p class="logTxt">Confirm Password</p>
+                {{ form.password2 }}
+                
+                
+            </div>
+
+            <div>
+                <button type="submit" class="btnSI">Sign Up</button>
+            </div>
+        </form>
+
+        <p id="rightsReserved">© 2023 ALL RIGHTS RESERVED</p>
+    </div>
+{% endblock %}

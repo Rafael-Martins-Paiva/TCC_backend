@@ -1,6 +1,7 @@
-from ..repositories.account_repository import AbstractUserRepository
 from ..aggregates.account import User
-from ..exceptions.auth_exceptions import InvalidCredentialsError, UserNotVerifiedError, UserNotFoundError
+from ..exceptions.auth_exceptions import InvalidCredentialsError, UserNotFoundError, UserNotVerifiedError
+from ..repositories.account_repository import AbstractUserRepository
+
 
 class AuthService:
     def __init__(self, user_repository: AbstractUserRepository):

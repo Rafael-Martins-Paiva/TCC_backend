@@ -1,0 +1,111 @@
+{% extends 'web/base.html' %}
+{% load static %}
+
+{% block title %}Paid Plan{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Upgrade to a Paid Plan</h2>
+    <p>Unlock advanced features and take your restaurant management to the next level!</p>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <div class="plan-details">
+        <h3>Benefits of our Paid Plan:</h3>
+        <ul>
+            <li>Create unlimited restaurants</li>
+            <li>Advanced analytics and reporting</li>
+            <li>Priority customer support</li>
+            <li>Customizable website templates</li>
+            <li>And much more!</li>
+        </ul>
+    </div>
+
+    <div class="pricing-section">
+        <h3>Pricing:</h3>
+        <p class="price">$9.99 / month</p>
+        <form method="post" action="{% url 'web:paid_plan' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Upgrade Now</button>
+        </form>
+    </div>
+
+    <p class="contact-info">Have questions? Contact our sales team at sales@example.com</p>
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        text-align: center;
+    }
+    h2 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+    .plan-details {
+        margin-top: 30px;
+        text-align: left;
+        border-top: 1px solid #eee;
+        padding-top: 20px;
+    }
+    .plan-details h3 {
+        color: #555;
+        margin-bottom: 15px;
+    }
+    .plan-details ul {
+        list-style: none;
+        padding: 0;
+    }
+    .plan-details li {
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%2328a745' class='bi bi-check-circle-fill' viewBox='0 0 16 16'%3E%3Cpath d='M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z'/%3E%3C/svg%3E") no-repeat left center;
+        background-size: 16px;
+        padding-left: 25px;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .pricing-section {
+        margin-top: 40px;
+        border-top: 1px solid #eee;
+        padding-top: 30px;
+    }
+    .pricing-section h3 {
+        color: #555;
+        margin-bottom: 15px;
+    }
+    .price {
+        font-size: 2.5em;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 20px;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 5px;
+        font-size: 1.1em;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+    .contact-info {
+        margin-top: 30px;
+        font-size: 0.9em;
+        color: #777;
+    }
+</style>
+{% endblock %}

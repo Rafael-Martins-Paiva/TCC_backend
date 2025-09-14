@@ -1,14 +1,17 @@
 import bleach
-# import re # No longer needed for script tag removal
-from .models import Restaurant
 from django.contrib.auth import get_user_model
 
+# import re # No longer needed for script tag removal
+from .models import Restaurant
+
 User = get_user_model()
+
 
 class CreateRestaurantService:
     def execute(self, name: str, owner: User) -> Restaurant:
         restaurant = Restaurant.objects.create(name=name, owner=owner)
         return restaurant
+
 
 class UpdateRestaurantContentService:
     # WARNING: Allowing script tags and style attributes directly opens up significant XSS vulnerabilities.
@@ -16,14 +19,32 @@ class UpdateRestaurantContentService:
     # further, more robust sandboxing (e.g., iframes with strict sandbox attributes) or a very
     # sophisticated HTML/CSS/JS sanitizer.
     ALLOWED_TAGS = [
-        'p', 'strong', 'em', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'br', 'img', 'a', 'ul', 'ol', 'li', 'blockquote', 'code', 'pre',
-        'script', 'style' # Added script and style tags as per user request
+        "p",
+        "strong",
+        "em",
+        "u",
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "br",
+        "img",
+        "a",
+        "ul",
+        "ol",
+        "li",
+        "blockquote",
+        "code",
+        "pre",
+        "script",
+        "style",  # Added script and style tags as per user request
     ]
     ALLOWED_ATTRIBUTES = {
-        '*': ['class', 'style'], # Added style attribute for all tags
-        'a': ['href', 'title'],
-        'img': ['src', 'alt'],
+        "*": ["class", "style"],  # Added style attribute for all tags
+        "a": ["href", "title"],
+        "img": ["src", "alt"],
     }
 
     def execute(self, restaurant: Restaurant, html_content: str) -> Restaurant:
@@ -39,7 +60,7 @@ class UpdateRestaurantContentService:
             html_content,
             tags=self.ALLOWED_TAGS,
             attributes=self.ALLOWED_ATTRIBUTES,
-            strip=False # Set to False to keep content inside tags like script
+            strip=False,  # Set to False to keep content inside tags like script
         )
         restaurant.website_content = sanitized_content
         restaurant.save()

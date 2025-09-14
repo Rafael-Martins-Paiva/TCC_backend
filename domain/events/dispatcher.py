@@ -1,5 +1,6 @@
 from collections import defaultdict
-from typing import Callable, Any
+from typing import Any, Callable
+
 
 class EventDispatcher:
     def __init__(self):
@@ -12,5 +13,6 @@ class EventDispatcher:
         event_type = type(event)
         for handler in self._handlers[event_type]:
             handler(event)
+
 
 dispatcher = EventDispatcher()

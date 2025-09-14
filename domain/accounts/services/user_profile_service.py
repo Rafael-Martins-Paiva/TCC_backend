@@ -1,5 +1,5 @@
 from ..repositories.account_repository import AbstractUserRepository
-from ..aggregates.account import User
+
 
 class UserProfileService:
     def __init__(self, user_repo: AbstractUserRepository):
@@ -8,15 +8,15 @@ class UserProfileService:
     def update_profile(self, user_id: int, update_data: dict):
         user_entity = self.user_repo.get_by_id(user_id)
 
-        if 'bio' in update_data:
-            user_entity.set_bio(update_data['bio'])
-            del update_data['bio']
+        if "bio" in update_data:
+            user_entity.set_bio(update_data["bio"])
+            del update_data["bio"]
 
-        if 'name' in update_data:
-            user_entity.name = update_data['name']
-            del update_data['name']
+        if "name" in update_data:
+            user_entity.name = update_data["name"]
+            del update_data["name"]
 
-        if 'username' in update_data:
+        if "username" in update_data:
             raise ValueError("Não é permitido alterar o nome de usuário por esta rota.")
 
         for key, value in update_data.items():

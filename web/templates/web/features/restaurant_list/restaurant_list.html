@@ -1,0 +1,93 @@
+{% extends 'web/base.html' %}
+
+{% block title %}All Restaurants{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>All Restaurants</h2>
+
+    {% if restaurants %}
+        <ul class="restaurant-list">
+            {% for restaurant in restaurants %}
+                <li>
+                    <a href="{% url 'web:restaurant_detail' restaurant.id %}">{{ restaurant.name }}</a>
+                    - <a href="http://{{ restaurant.name|lower }}.localtest.me:8000">View Subdomain</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="pagination">
+            {% if has_previous %}
+                <a href="?limit={{ current_limit }}&cursor={{ previous_cursor }}&direction=prev" class="btn btn-primary">&laquo; Previous</a>
+            {% endif %}
+            {% if has_next %}
+                <a href="?limit={{ current_limit }}&cursor={{ next_cursor }}&direction=next" class="btn btn-primary">Next &raquo;</a>
+            {% endif %}
+        </div>
+
+    {% else %}
+        <p>No restaurants found.</p>
+    {% endif %}
+</div>
+
+<style>
+    .container {
+        max-width: 800px;
+        margin: 50px auto;
+        padding: 30px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,.1);
+    }
+    h2 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 30px;
+    }
+    .restaurant-list {
+        list-style: none;
+        padding: 0;
+    }
+    .restaurant-list li {
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .restaurant-list li a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .restaurant-list li a:hover {
+        text-decoration: underline;
+    }
+    .restaurant-list li span {
+        color: #666;
+        font-size: 0.9em;
+    }
+    .pagination {
+        margin-top: 20px;
+        text-align: center;
+    }
+    .pagination .btn-primary {
+        display: inline-block;
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        text-decoration: none;
+        font-size: 1em;
+        cursor: pointer;
+        transition: background-color 0.2s ease-in-out;
+    }
+    .pagination .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>
+{% endblock %}

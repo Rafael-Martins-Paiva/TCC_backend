@@ -8,58 +8,105 @@
 {% endblock %}
 
 {% block content %}
-    <!-- container centralizado com base no tamanho da janela-->
-    <div id ="logContainer">
+    <div id="logContainer">
+        <h1 id="logH">Welcome back</h1>
+        <p id="logTxt">Today is a new day, so log in to start<br>managing</p>
 
-        <h id="logH"> Welcome back</h>
-        <p id="logTxt">Today is a new day, So log in to start 
-        <br>managing</p>
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
 
-        <div style="margin-top: 30px;">
-            <!-- container dos inputs -->
-            
-            <p class="logTxt">Email</p>
-            <input class="logInputTxt" type="text" id="email" name="email" placeholder="Example@email.com">
+        <form method="post" action="{% url 'web:login' %}">
+            {% csrf_token %}
+            <div style="margin-top: 30px;">
+                {% if form.non_field_errors %}
+                    <div class="errorlist">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
 
-            <p class="logTxt">Password</p>
+                <p class="logTxt">Email</p>
+                {{ form.email }}
+                {% for error in form.email.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
 
-            <!--falta declarar os requisitos do input (ex: not null)-->
-            <input class="logInputTxt" type="password" id="password" name="password" placeholder="At least 8 caracters">
-        </div>
-
-        <div>
-            <a href="#" class="defaultLink" id="forgotPassword">Forgot the Password?</a> <!-- falta adicionar a referência-->   
-
-            <button class="btnSI">Sign In</button>
-
-
-<!--parte copiada-->
-            <div class="divider">
-
-  <span>Or</span>
-    </div>
-<!---->
+                <p class="logTxt">Password</p>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                    <p class="error-message">{{ error }}</p>
+                {% endfor %}
             </div>
 
-            
-            
-            <button class="btnIcon">
-              <a class="signInWith SignInWith" href="#">
+            <div>
+                <a href="#" class="defaultLink" id="forgotPassword">Forgot the Password?</a>
+                <button type="submit" class="btnSI">Sign In</button>
+            </div>
+        </form>
+
+        <div class="divider"><span>Or</span></div>
+
+        <button class="btnIcon">
+            <a class="signInWith" href="#">
                 <img src="{% static 'web/img/google-icon.png' %}" alt="Google Icon" class="iconImg">
                 Sign in with Google
-              </a>
-            </button>
+            </a>
+        </button>
 
-            <button class="btnIcon">
-              <a class="signInWith SignInWith" href="#">
+        <button class="btnIcon">
+            <a class="signInWith" href="#">
                 <img src="{% static 'web/img/facebook-icon.png' %}" alt="Facebook Icon" class="iconImg">
                 Sign in with Facebook
-              </a>
-            </button>
+            </a>
+        </button>
 
-            <p id="noAccount">Don't you have a account? <a href="#" class="defaultLink">Sign up</a></p> <!--não há referência-->
+        <p id="noAccount">Don't you have an account? <a href="{% url 'web:registration' %}" class="defaultLink">Sign up</a></p>
 
-
-            <p id="rightsReserved">@ 2023 ALL RIGHTS RESERVED</p>
+        <p id="rightsReserved">© 2023 ALL RIGHTS RESERVED</p>
     </div>
+
+    <style>
+        /* Basic styling for messages and errors, similar to restaurant_create.html */
+        .messages {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 20px;
+        }
+        .messages li {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .messages .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #28a745;
+        }
+        .messages .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #dc3545;
+        }
+        .errorlist {
+            color: #dc3545;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #dc3545;
+            background-color: #f8d7da;
+            border-radius: 4px;
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875em;
+            margin-top: 5px;
+        }
+    </style>
 {% endblock %}

@@ -1,9 +1,11 @@
 from django.contrib.auth import get_user_model
+
 from domain.accounts.aggregates.account import User as UserEntity
-from domain.accounts.repositories.account_repository import AbstractUserRepository
 from domain.accounts.aggregates.value_objects.email import Email
+from domain.accounts.repositories.account_repository import AbstractUserRepository
 
 DjangoUser = get_user_model()
+
 
 class DjangoUserRepository(AbstractUserRepository):
 
@@ -14,7 +16,7 @@ class DjangoUserRepository(AbstractUserRepository):
             password=user_entity.hashed_password,
             is_verified=user_entity.is_verified,
             verification_token=user_entity.verification_token,
-            bio=user_entity.bio
+            bio=user_entity.bio,
         )
 
     def exists_by_email(self, email: Email) -> bool:
@@ -49,5 +51,5 @@ class DjangoUserRepository(AbstractUserRepository):
             hashed_password=user_model.password,
             is_verified=user_model.is_verified,
             verification_token=user_model.verification_token,
-            bio=getattr(user_model, 'bio', '')
+            bio=getattr(user_model, "bio", ""),
         )

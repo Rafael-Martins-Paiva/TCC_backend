@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
-from django.contrib.auth.hashers import make_password, check_password
+
+from django.contrib.auth.hashers import check_password, make_password
+
 from .value_objects.email import Email
+
 
 @dataclass
 class User:
@@ -21,4 +24,4 @@ class User:
     def set_bio(self, bio: str):
         if len(bio) > 500:
             raise ValueError("A biografia não pode exceder 500 caracteres.")
-        self.bio = bio 
+        self.bio = bio

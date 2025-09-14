@@ -1,10 +1,12 @@
 from django.contrib.auth import get_user_model
-from domain.accounts.services.change_password_service import ChangePasswordService
-from domain.accounts.exceptions.auth_exceptions import InvalidOldPasswordError
-from domain.accounts.services.user_profile_service import UserProfileService
+
 from accounts.repositories import DjangoUserRepository
+from domain.accounts.exceptions.auth_exceptions import InvalidOldPasswordError
+from domain.accounts.services.change_password_service import ChangePasswordService
+from domain.accounts.services.user_profile_service import UserProfileService
 
 User = get_user_model()
+
 
 class ChangePasswordApplicationService:
     def __init__(self):
@@ -14,10 +16,13 @@ class ChangePasswordApplicationService:
     def change_password(self, user: User, old_password: str, new_password: str) -> User:
         try:
             user_entity = self.user_repository._to_entity(user)
-            updated_user_entity = self.change_password_domain_service.change_password(user_entity, old_password, new_password)
+            updated_user_entity = self.change_password_domain_service.change_password(
+                user_entity, old_password, new_password
+            )
             return User.objects.get(id=updated_user_entity.id)
         except InvalidOldPasswordError as e:
             raise e
+
 
 class UserApplicationService:
     def __init__(self):

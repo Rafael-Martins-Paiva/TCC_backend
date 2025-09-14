@@ -1,0 +1,10 @@
+{% extends 'web/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Restaurant Detail</h2>
+    <p>Restaurant ID: {{ restaurant_id }}</p>
+    <p>More details about the restaurant will be displayed here.</p>
+    <button onclick="history.back()" class="btn btn-secondary mt-3">Voltar</button>
+</div>
+{% endblock %}

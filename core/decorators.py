@@ -16,9 +16,7 @@ def get_client_ip(request):
     return request.META.get("REMOTE_ADDR", "unknown").strip()
 
 
-def rate_limit(
-    max_calls: int = 10, window: int = 60, key_func=get_client_ip
-):
+def rate_limit(max_calls: int = 10, window: int = 60, key_func=get_client_ip):
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(view, request, *args, **kwargs):
@@ -28,9 +26,7 @@ def rate_limit(
             try:
                 client_id = key_func(request)
                 if not client_id or client_id == "unknown":
-                    logger.warning(
-                        "[RATE LIMIT] Could not determine a client identifier."
-                    )
+                    logger.warning("[RATE LIMIT] Could not determine a client identifier.")
                     return view_func(view, request, *args, **kwargs)
 
                 path = urlparse(request.path).path.rstrip("/").lower()

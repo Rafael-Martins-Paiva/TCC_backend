@@ -1,5 +1,6 @@
 from rest_framework_simplejwt.tokens import RefreshToken
 
+
 class LogoutService:
     def logout(self, refresh_token):
         try:

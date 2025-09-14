@@ -1,6 +1,8 @@
 import abc
+
 from ..aggregates.account import User
 from ..aggregates.value_objects.email import Email
+
 
 class AbstractUserRepository(abc.ABC):
     @abc.abstractmethod

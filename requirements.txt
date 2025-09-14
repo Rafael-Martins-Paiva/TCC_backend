@@ -3,3 +3,10 @@
 # Security
 bleach
 google-auth
+
+# Core
+django-hosts
+djangorestframework
+dj-rest-auth
+django-allauth
+tzdata
