@@ -1,5 +1,6 @@
 from dj_rest_auth.serializers import LoginSerializer
 from rest_framework import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from domain.accounts.aggregates.value_objects.email import Email, InvalidEmailError
 
@@ -83,5 +84,11 @@ class CustomLoginSerializer(LoginSerializer):
         if attrs.get("honeypot"):
             raise serializers.ValidationError("Honeypot field filled. This is likely a bot.")
         attrs = super().validate(attrs)
-        print("DEBUG: attrs from super().validate:", attrs)
-        return attrs
+        user = attrs['user']
+        refresh = RefreshToken.for_user(user)
+        user_data = UserSerializer(user).data
+        return {
+            'user': user_data,
+            'access': str(refresh.access_token),
+            'refresh': str(refresh),
+        }
