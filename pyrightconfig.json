@@ -1,0 +1,39 @@
+{
+    "include": [
+        "**/*.py"
+    ],
+    "exclude": [
+        "**/node_modules",
+        "**/__pycache__",
+        "**/.venv",
+        "**/.git",
+        "**/.ruff_cache",
+        "**/migrations",
+        "**/*.egg-info"
+    ],
+    "reportMissingTypeStubs": false,
+    "pythonVersion": "3.12",
+    "pythonPlatform": "Linux",
+    "extraPaths": [
+        "./"
+    ],
+    "stubPath": "./typings",
+    "venvPath": "./.venv",
+    "venv": "venv",
+    "typeCheckingMode": "basic",
+    "autoImportCompletions": true,
+    "autoSearchPaths": true,
+    "defineConstant": {
+        "DJANGO_SETTINGS_MODULE": "core.settings"
+    },
+    "report": {
+        "reportMissingImports": {
+            "exclude": [
+                "allauth.*",
+                "rest_framework.*",
+                "dj_rest_auth.*",
+                "django_hosts.*"
+            ]
+        }
+    }
+}

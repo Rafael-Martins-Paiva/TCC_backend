@@ -22,6 +22,9 @@ dependencies = [
     "black",
     "isort",
     "ruff",
+    "pyright[nodejs]",
+    "django-stubs",
+    "mypy-extensions",
 ]
 
 [tool.setuptools.packages.find]
