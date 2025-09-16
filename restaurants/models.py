@@ -15,6 +15,9 @@ class Restaurant(models.Model):
     def __str__(self):
         return self.name
 
+    def get_inventory_items(self):
+        return InventoryItem.objects.filter(menu_item__restaurant=self)
+
 
 class MenuItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -32,6 +35,24 @@ class MenuItem(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.restaurant.name}"
+
+    def get_unavailable_ingredients(self):
+        """
+        Parses the ingredients string and checks against StockItem for availability.
+        Returns a list of ingredient names that are out of stock.
+        """
+        if not self.ingredients:
+            return []
+
+        # Split ingredients by comma and strip whitespace
+        ingredient_names = [name.strip() for name in self.ingredients.split(",") if name.strip()]
+
+        # Find stock items for this restaurant that match the ingredient names and are out of stock
+        out_of_stock_items = StockItem.objects.filter(
+            restaurant=self.restaurant, name__in=ingredient_names, quantity=0
+        ).values_list("name", flat=True)
+
+        return list(out_of_stock_items)
 
 
 class Review(models.Model):
@@ -70,3 +91,18 @@ class InventoryItem(models.Model):
 
     def __str__(self):
         return f"Inventory for {self.menu_item.name}: {self.quantity}"
+
+
+class StockItem(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE, related_name="stock_items")
+    name = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField(default=0)
+    last_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("restaurant", "name")
+        ordering = ["name"]
+
+    def __str__(self):
+        return f"{self.name} ({self.quantity}) for {self.restaurant.name}"

@@ -5,6 +5,9 @@
 {% block content %}
 <div class="container mt-4">
     <h1>{{ restaurant.name }}</h1>
+    {% if user.is_authenticated and user == restaurant.owner %}
+        <a href="{% url 'web:manage_inventory' restaurant.pk %}" class="btn btn-info">Manage Inventory</a>
+    {% endif %}
     <p>Owner: {{ restaurant.owner.username }}</p>
 
     <hr>
@@ -43,8 +46,6 @@
         <p>Please <a href="{% url 'account_login' %}">log in</a> to submit a review.</p>
     {% endif %}
 
-    {# Commented out Menu Items section for debugging #}
-    {#
     <hr class="mt-5">
 
     <h2>Menu Items</h2>
@@ -55,6 +56,15 @@
                     <h3>{{ item.name }}</h3>
                 </div>
                 <div class="card-body">
+                    {% with unavailable_ingredients=item.get_unavailable_ingredients %}
+                        {% if unavailable_ingredients %}
+                            <div class="alert alert-warning mt-2">
+                                <strong>Warning:</strong> The following ingredients are out of stock: {{ unavailable_ingredients|join:", " }}.
+                                <br>
+                                <small>Consider temporarily removing this item from the menu.</small>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                     <p>{{ item.description }}</p>
                     {% if item.ingredients %}<p><strong>Ingredients:</strong> {{ item.ingredients }}</p>{% endif %}
                     {% if item.allergens %}<p><strong>Allergens:</strong> {{ item.allergens }}</p>{% endif %}
@@ -99,6 +109,5 @@
     {% else %}
         <p>No menu items found for this restaurant.</p>
     {% endif %}
-    #}
 </div>
 {% endblock %}

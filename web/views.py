@@ -13,9 +13,15 @@ from accounts.repositories import DjangoUserRepository
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
 from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError
 from domain.accounts.services.registration_service import RegistrationService
-from restaurants.models import Restaurant
+from restaurants.models import Restaurant, StockItem
 
-from .forms import LoginForm, RegistrationForm, RestaurantCreateForm
+from .forms import (
+    AddStockItemForm,
+    DecreaseStockItemForm,
+    LoginForm,
+    RegistrationForm,
+    RestaurantCreateForm,
+)
 
 
 def wildcard_view(request, page_name="landing"):
@@ -225,3 +231,65 @@ class ManageMenuView(TemplateView):
         restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_id"], owner=self.request.user)
         context["restaurant"] = restaurant
         return context
+
+
+@method_decorator(login_required, name="dispatch")
+class ManageInventoryView(TemplateView):
+    template_name = "web/manage_inventory.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_id"], owner=self.request.user)
+        context["restaurant"] = restaurant
+        context["stock_items"] = StockItem.objects.filter(restaurant=restaurant)
+        context["add_form"] = AddStockItemForm()
+        context["decrease_form"] = DecreaseStockItemForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_id"], owner=self.request.user)
+
+        # Check which form is being submitted by looking for a unique field
+        if "name" in request.POST:
+            form = AddStockItemForm(request.POST)
+            if form.is_valid():
+                name = form.cleaned_data["name"]
+                quantity = form.cleaned_data["quantity"]
+                # Use update_or_create to handle both new and existing items gracefully
+                stock_item, created = StockItem.objects.update_or_create(
+                    restaurant=restaurant, name__iexact=name, defaults={"name": name, "quantity": quantity}
+                )
+                if created:
+                    messages.success(request, f"'{stock_item.name}' added to inventory.")
+                else:
+                    messages.info(request, f"'{stock_item.name}' quantity updated.")
+                return redirect("web:manage_inventory", restaurant_id=restaurant.pk)
+
+        elif "item_id" in request.POST:
+            form = DecreaseStockItemForm(request.POST)
+            if form.is_valid():
+                item_id = form.cleaned_data["item_id"]
+                amount = form.cleaned_data["amount"]
+                try:
+                    stock_item = StockItem.objects.get(id=item_id, restaurant=restaurant)
+                    if stock_item.quantity >= amount:
+                        stock_item.quantity -= amount
+                        stock_item.save()
+                        messages.success(request, f"Decreased '{stock_item.name}' quantity by {amount}.")
+                    else:
+                        messages.error(request, f"Cannot decrease quantity by {amount}, only {stock_item.quantity} left.")
+                except StockItem.DoesNotExist:
+                    messages.error(request, "Invalid item.")
+                return redirect("web:manage_inventory", restaurant_id=restaurant.pk)
+
+        # If form is invalid or something went wrong, re-render with errors
+        # This part is tricky because we have two forms. We need to pass the failing form back.
+        context = self.get_context_data(**kwargs)
+        if "name" in request.POST:
+            context["add_form"] = AddStockItemForm(request.POST)
+        elif "item_id" in request.POST:
+            # To show the error on the correct item, this would need more complex handling in the template.
+            # For now, we just show a general error.
+            messages.error(request, "Invalid data submitted for decreasing stock.")
+
+        return self.render_to_response(context)

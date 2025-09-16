@@ -1,0 +1,85 @@
+{% extends "web/base.html" %}
+
+{% block title %}Manage Inventory for {{ restaurant.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Manage Inventory for <a href="{% url 'web:restaurant_detail' restaurant.pk %}">{{ restaurant.name }}</a></h1>
+
+    {# Display messages #}
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mt-2">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <hr>
+
+    <h3>Current Stock</h3>
+    {% if stock_items %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Item Name</th>
+                        <th>Current Quantity</th>
+                        <th>Decrease Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in stock_items %}
+                        <tr>
+                            <td>
+                                {{ item.name }}
+                                {% if item.quantity == 0 %}
+                                    <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.quantity }}</td>
+                            <td>
+                                <form method="post" class="form-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="item_id" value="{{ item.id }}">
+                                    <div class="input-group">
+                                        <input type="number" name="amount" class="form-control form-control-sm" placeholder="Amount" min="1" required>
+                                        <button type="submit" class="btn btn-warning btn-sm">Decrease</button>
+                                    </div>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <p>No stock items found for this restaurant. Add one below!</p>
+    {% endif %}
+
+    <hr class="mt-4">
+
+    <h3>Add New or Update Stock Item</h3>
+    <form method="post" class="form-group">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-6 mb-2">
+                {{ add_form.name.label_tag }}
+                {{ add_form.name }}
+            </div>
+            <div class="col-md-4 mb-2">
+                {{ add_form.quantity.label_tag }}
+                {{ add_form.quantity }}
+            </div>
+            <div class="col-md-2 d-flex align-items-end mb-2">
+                <button type="submit" class="btn btn-primary w-100">Add/Update</button>
+            </div>
+        </div>
+        {% if add_form.errors %}
+            <div class="alert alert-danger mt-2">
+                {{ add_form.errors }}
+            </div>
+        {% endif %}
+    </form>
+
+    <a href="{% url 'web:restaurant_detail' restaurant.pk %}" class="btn btn-secondary mt-4">Back to Restaurant Details</a>
+</div>
+{% endblock %}
