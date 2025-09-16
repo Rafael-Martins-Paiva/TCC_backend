@@ -1,12 +1,20 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
-from rest_framework import generics, permissions
+from django.views.generic import DetailView
+from rest_framework import generics, permissions, serializers
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
-from .models import Restaurant
-from .permissions import IsOwner
-from .serializers import RestaurantContentSerializer, RestaurantSerializer
+from .models import InventoryItem, MenuItem, Restaurant, Review
+from .permissions import IsInventoryItemOwner, IsOwner, IsRestaurantOwnerOrReadOnly
+from .serializers import (
+    InventoryItemSerializer,
+    MenuItemSerializer,
+    RestaurantContentSerializer,
+    RestaurantSerializer,
+    ReviewSerializer,
+)
 from .services import UpdateRestaurantContentService
 
 
@@ -84,8 +92,7 @@ class RestaurantContentView(generics.RetrieveAPIView):
 
 
 class RestaurantSubdomainView(RestaurantContentView):
-    """Serves the raw HTML content of a restaurant's website based on the subdomain.
-    """
+    """Serves the raw HTML content of a restaurant's website based on the subdomain."""
 
     def get_object(self):
         host = self.request.META.get("HTTP_HOST", "")
@@ -116,3 +123,142 @@ class RestaurantSubdomainView(RestaurantContentView):
             return HttpResponse(instance.website_content, content_type="text/html")
         except Http404:
             return render(request, "web/404.html", status=404)
+
+
+class MenuItemListCreateAPIView(generics.ListCreateAPIView):
+    """List all menu items for a restaurant, or create a new one."""
+
+    authentication_classes = [SessionAuthentication]
+    serializer_class = MenuItemSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        restaurant_pk = self.kwargs["restaurant_pk"]
+        return MenuItem.objects.filter(restaurant__pk=restaurant_pk)
+
+    def perform_create(self, serializer):
+        restaurant_pk = self.kwargs["restaurant_pk"]
+        restaurant = get_object_or_404(Restaurant, pk=restaurant_pk)
+        # Check if the user is the owner of the restaurant
+        if self.request.user != restaurant.owner:
+            raise PermissionDenied("You do not have permission to add menu items to this restaurant.")
+        serializer.save(restaurant=restaurant)
+
+
+class MenuItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    """Retrieve, update or delete a menu item."""
+
+    authentication_classes = [SessionAuthentication]
+    serializer_class = MenuItemSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRestaurantOwnerOrReadOnly]
+    lookup_url_kwarg = "menu_item_pk"
+
+    def get_queryset(self):
+        restaurant_pk = self.kwargs["restaurant_pk"]
+        return MenuItem.objects.filter(restaurant__pk=restaurant_pk)
+
+
+class RestaurantDetailView(DetailView):
+    model = Restaurant
+    template_name = "web/restaurant_detail.html"
+    context_object_name = "restaurant"
+    pk_url_kwarg = "pk"
+
+    def get_queryset(self):
+        return super().get_queryset().select_related("owner")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        restaurant = self.get_object()
+        context["menu_items"] = restaurant.menu_items.all().prefetch_related("reviews__author")
+        context["restaurant_reviews"] = restaurant.reviews.all().select_related("author")
+        return context
+
+
+class RestaurantReviewListCreateAPIView(generics.ListCreateAPIView):
+    """List all reviews for a restaurant, or create a new one."""
+
+    authentication_classes = [SessionAuthentication]
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        restaurant_pk = self.kwargs["restaurant_pk"]
+        return Review.objects.filter(restaurant__pk=restaurant_pk)
+
+    def perform_create(self, serializer):
+        restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_pk"])
+        serializer.save(author=self.request.user, restaurant=restaurant)
+
+
+class MenuItemReviewListCreateAPIView(generics.ListCreateAPIView):
+    """List all reviews for a menu item, or create a new one."""
+
+    authentication_classes = [SessionAuthentication]
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        menu_item_pk = self.kwargs["menu_item_pk"]
+        return Review.objects.filter(menu_item__pk=menu_item_pk)
+
+    def perform_create(self, serializer):
+        menu_item = get_object_or_404(MenuItem, pk=self.kwargs["menu_item_pk"])
+        serializer.save(author=self.request.user, menu_item=menu_item)
+
+
+class InventoryItemListCreateAPIView(generics.ListCreateAPIView):
+    """
+    Lists all inventory items for a restaurant's menu items.
+    Allows creating an InventoryItem for a MenuItem if one doesn't exist.
+    """
+
+    authentication_classes = [SessionAuthentication]
+    serializer_class = InventoryItemSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        restaurant_pk = self.kwargs["restaurant_pk"]
+        return InventoryItem.objects.filter(menu_item__restaurant__pk=restaurant_pk)
+
+    def perform_create(self, serializer):
+        menu_item_pk = self.request.data.get("menu_item")
+        if not menu_item_pk:
+            raise serializers.ValidationError({"menu_item": "This field is required."})
+
+        menu_item = get_object_or_404(MenuItem, pk=menu_item_pk)
+
+        # Check if an InventoryItem already exists for this MenuItem
+        if InventoryItem.objects.filter(menu_item=menu_item).exists():
+            raise serializers.ValidationError({"menu_item": "Inventory item already exists for this menu item."})
+
+        # Check if the user owns the restaurant of the menu item
+        if self.request.user != menu_item.restaurant.owner:
+            raise PermissionDenied("You do not have permission to manage inventory for this menu item.")
+
+        serializer.save(menu_item=menu_item)
+
+
+class InventoryItemRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
+    """
+    Retrieves and updates a specific inventory item.
+    """
+
+    authentication_classes = [SessionAuthentication]
+    serializer_class = InventoryItemSerializer
+    permission_classes = [permissions.IsAuthenticated, IsInventoryItemOwner]
+
+    lookup_field = "menu_item__pk"  # Look up by menu_item's primary key
+    lookup_url_kwarg = "menu_item_pk"
+
+    def get_queryset(self):
+        restaurant_pk = self.kwargs["restaurant_pk"]
+        return InventoryItem.objects.filter(menu_item__restaurant__pk=restaurant_pk)
+
+    def get_object(self):
+        # Override get_object to use the custom lookup_field and check permissions
+        queryset = self.filter_queryset(self.get_queryset())
+        filter_kwargs = {self.lookup_field: self.kwargs[self.lookup_url_kwarg]}
+        obj = get_object_or_404(queryset, **filter_kwargs)
+        self.check_object_permissions(self.request, obj)
+        return obj

@@ -4,8 +4,10 @@ from django.contrib import messages
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from django.http import Http404, HttpResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import TemplateDoesNotExist
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView
 
 from accounts.repositories import DjangoUserRepository
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
@@ -117,12 +119,6 @@ def paid_plan_view(request):
     return render(request, "web/features/paid_plan/paid_plan.html")
 
 
-def restaurant_detail_view(request, restaurant_id):
-    # Fetch restaurant data based on restaurant_id
-    context = {"restaurant_id": restaurant_id}
-    return render(request, "web/features/restaurant_detail/restaurant_detail.html", context)
-
-
 def restaurant_list_view(request):
     limit = int(request.GET.get("limit", 10))
     cursor = request.GET.get("cursor")
@@ -217,3 +213,15 @@ def restaurant_create_view(request):
     else:
         form = RestaurantCreateForm()
     return render(request, "web/features/restaurant_create/restaurant_create.html", {"form": form})
+
+
+@method_decorator(login_required, name="dispatch")
+class ManageMenuView(TemplateView):
+    template_name = "restaurants/manage_menu.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # Ensure the restaurant exists and the user is the owner
+        restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_id"], owner=self.request.user)
+        context["restaurant"] = restaurant
+        return context

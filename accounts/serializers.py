@@ -84,11 +84,11 @@ class CustomLoginSerializer(LoginSerializer):
         if attrs.get("honeypot"):
             raise serializers.ValidationError("Honeypot field filled. This is likely a bot.")
         attrs = super().validate(attrs)
-        user = attrs['user']
+        user = attrs["user"]
         refresh = RefreshToken.for_user(user)
         user_data = UserSerializer(user).data
         return {
-            'user': user_data,
-            'access': str(refresh.access_token),
-            'refresh': str(refresh),
+            "user": user_data,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh),
         }

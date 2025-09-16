@@ -1,0 +1,104 @@
+{% extends "web/base.html" %}
+
+{% block title %}{{ restaurant.name }} - Reviews{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>{{ restaurant.name }}</h1>
+    <p>Owner: {{ restaurant.owner.username }}</p>
+
+    <hr>
+
+    <h2>Restaurant Reviews</h2>
+    {% if restaurant_reviews %}
+        <div class="list-group">
+            {% for review in restaurant_reviews %}
+                <div class="list-group-item mb-2">
+                    <h5 class="mb-1">Rating: {{ review.rating }} stars</h5>
+                    <p class="mb-1">{{ review.comment }}</p>
+                    <small class="text-muted">By {{ review.author.email }} on {{ review.created_at|date:"F d, Y" }}</small>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No reviews yet for this restaurant.</p>
+    {% endif %}
+
+    <h3 class="mt-4">Submit a Restaurant Review</h3>
+    {% if user.is_authenticated %}
+        <form action="{% url 'restaurant-review-list-create' restaurant.pk %}" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="restaurant" value="{{ restaurant.pk }}">
+            <div class="mb-3">
+                <label for="id_rating" class="form-label">Rating (1-5):</label>
+                <input type="number" name="rating" id="id_rating" class="form-control" min="1" max="5" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_comment" class="form-label">Comment:</label>
+                <textarea name="comment" id="id_comment" class="form-control" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit Review</button>
+        </form>
+    {% else %}
+        <p>Please <a href="{% url 'account_login' %}">log in</a> to submit a review.</p>
+    {% endif %}
+
+    {# Commented out Menu Items section for debugging #}
+    {#
+    <hr class="mt-5">
+
+    <h2>Menu Items</h2>
+    {% if menu_items %}
+        {% for item in menu_items %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>{{ item.name }}</h3>
+                </div>
+                <div class="card-body">
+                    <p>{{ item.description }}</p>
+                    {% if item.ingredients %}<p><strong>Ingredients:</strong> {{ item.ingredients }}</p>{% endif %}
+                    {% if item.allergens %}<p><strong>Allergens:</strong> {{ item.allergens }}</p>{% endif %}
+                    <p>Availability: {% if item.is_available %}Available{% else %}Not Available{% endif %}</p>
+
+                    <h4 class="mt-3">Menu Item Reviews</h4>
+                    {% if item.reviews.all %}
+                        <div class="list-group mb-3">
+                            {% for review in item.reviews.all %}
+                                <div class="list-group-item mb-2">
+                                    <h6 class="mb-1">Rating: {{ review.rating }} stars</h6>
+                                    <p class="mb-1">{{ review.comment }}</p>
+                                    <small class="text-muted">By {{ review.author.email }} on {{ review.created_at|date:"F d, Y" }}</small>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No reviews yet for this menu item.</p>
+                    {% endif %}
+
+                    <h5 class="mt-4">Submit a Menu Item Review</h5>
+                    {% if user.is_authenticated %}
+                        <form action="{% url 'menu-item-review-list-create' restaurant.pk item.pk %}" method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="menu_item" value="{{ item.pk }}">
+                            <div class="mb-3">
+                                <label for="menu_item_rating_{{ item.pk }}" class="form-label">Rating (1-5):</label>
+                                <input type="number" name="rating" id="menu_item_rating_{{ item.pk }}" class="form-control" min="1" max="5" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="menu_item_comment_{{ item.pk }}" class="form-label">Comment:</label>
+                                <textarea name="comment" id="menu_item_comment_{{ item.pk }}" class="form-control" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                        </form>
+                    {% else %}
+                        <p>Please <a href="{% url 'account_login' %}">log in</a> to submit a review.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No menu items found for this restaurant.</p>
+    {% endif %}
+    #}
+</div>
+{% endblock %}

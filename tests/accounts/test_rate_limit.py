@@ -19,8 +19,7 @@ class RateLimitTest(TestCase):
         self.url = "/api/v1/accounts/google/login/"
 
     def test_google_login_rate_limit_exceeded(self):
-        """Verifica se o rate limit bloqueia requisições após o limite ser excedido.
-        """
+        """Verifica se o rate limit bloqueia requisições após o limite ser excedido."""
         # As 10 primeiras chamadas devem ser permitidas (mesmo que resultem em erro 400 por falta de token)
         for _ in range(10):
             response = self.client.post(self.url, {})
