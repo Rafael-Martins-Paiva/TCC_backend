@@ -31,6 +31,20 @@ class MenuItemSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["id", "restaurant"]
 
+    def validate_ingredients(self, value):
+        if isinstance(value, str):
+            return [s.strip() for s in value.split(',') if s.strip()]
+        elif isinstance(value, list):
+            return value
+        return [] # Default to empty list if neither string nor list
+
+    def validate_allergens(self, value):
+        if isinstance(value, str):
+            return [s.strip() for s in value.split(',') if s.strip()]
+        elif isinstance(value, list):
+            return value
+        return [] # Default to empty list if neither string nor list
+
 
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.HiddenField(default=serializers.CurrentUserDefault())

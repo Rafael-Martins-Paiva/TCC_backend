@@ -26,8 +26,8 @@ class MenuItem(models.Model):
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     is_available = models.BooleanField(default=True)
-    ingredients = models.TextField(blank=True, help_text="List of ingredients, separated by comma.")
-    allergens = models.TextField(blank=True, help_text="List of allergens, separated by comma.")
+    ingredients = models.JSONField(default=list, blank=True, help_text="List of ingredients.")
+    allergens = models.JSONField(default=list, blank=True, help_text="List of allergens.")
 
     class Meta:
         ordering = ["name"]
@@ -38,14 +38,14 @@ class MenuItem(models.Model):
 
     def get_unavailable_ingredients(self):
         """
-        Parses the ingredients string and checks against StockItem for availability.
+        Checks the ingredients list against StockItem for availability.
         Returns a list of ingredient names that are out of stock.
         """
         if not self.ingredients:
             return []
 
-        # Split ingredients by comma and strip whitespace
-        ingredient_names = [name.strip() for name in self.ingredients.split(",") if name.strip()]
+        # The ingredients field is now a list of strings
+        ingredient_names = self.ingredients
 
         # Find stock items for this restaurant that match the ingredient names and are out of stock
         out_of_stock_items = StockItem.objects.filter(
