@@ -25,6 +25,8 @@ dependencies = [
     "pyright[nodejs]",
     "django-stubs",
     "mypy-extensions",
+    "sentry-sdk[django]>=2.38.0",
+    "rest-framework-simplejwt>=0.0.2",
 ]
 
 [tool.setuptools.packages.find]

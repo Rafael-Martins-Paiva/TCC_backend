@@ -2,7 +2,7 @@ from accounts.models import User, UserRole
 
 def run():
     try:
-        user = User.objects.get(email='Rafael.martinsner@g.com')
+        user = User.objects.get(email='rafael.martins.paiva0@gmail.com')
         user.role = UserRole.ADMIN
         user.is_staff = True
         user.is_superuser = True

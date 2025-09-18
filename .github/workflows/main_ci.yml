@@ -22,8 +22,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install ruff pytest django-stubs djangorestframework-stubs
-        # Install pyright if it's a Python package, otherwise it's a separate tool
-        # For now, assuming it's a separate tool and will be run directly
     - name: Run Tests
       run: |
         python manage.py test
@@ -32,8 +30,5 @@ jobs:
         ruff check .
     - name: Run Pyright Type Checker
       run: |
-        # Pyright is a Node.js tool, so it needs Node.js to be set up.
-        # For simplicity, we'll assume it's installed globally or via npm.
-        # If not, this step will fail and needs further configuration.
         npm install -g pyright || true # Install pyright if not found, allow failure for now
         pyright
