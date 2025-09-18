@@ -141,6 +141,8 @@ DATABASES = {
     }
 }
 
+if DEBUG:
+    DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}
 if "test" in sys.argv:
     DATABASES["default"] = {"ENGINE": "django.db.backends.sqlite3", "NAME": ":memory:"}
 AUTH_PASSWORD_VALIDATORS = [
@@ -195,6 +197,12 @@ CACHES = {
         },
     }
 }
+
+if DEBUG:
+    CACHES["default"] = {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "unique-snowflake",
+    }
 
 # Ensure the logs directory exists
 LOG_DIR = BASE_DIR / "logs"
