@@ -1,0 +1,126 @@
+{% extends "web/base.html" %}
+
+{% block title %}Order Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Order Management</h1>
+
+    {% if orders_by_restaurant %}
+        {% for restaurant_name, orders in orders_by_restaurant.items %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2>Orders for {{ restaurant_name }}</h2>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        <div class="accordion" id="accordion{{ restaurant_name|slugify }}">
+                            {% for order in orders %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="heading{{ order.id }}">
+                                        <button class="accordion-button {% if not forloop.first %}collapsed{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ order.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}" aria-controls="collapse{{ order.id }}">
+                                            Order #{{ forloop.counter }} (ID: {{ order.id|slice:":8" }}...) - Customer: {{ order.user }} - Status: <span id="orderStatus{{ order.id }}"><strong>{{ order.get_status_display }}</strong></span> - Ordered: {{ order.created_at|date:"H:i F d, Y" }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ order.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" aria-labelledby="heading{{ order.id }}" data-bs-parent="#accordion{{ restaurant_name|slugify }}">
+                                        <div class="accordion-body">
+                                            <p><strong>Total Price:</strong> R$ {{ order.total_price|floatformat:2 }}</p>
+                                            <h6>Items:</h6>
+                                            <ul>
+                                                {% for item in order.items.all %}
+                                                    <li>{{ item.quantity }} x {{ item.menu_item.name }} (R$ {{ item.price_at_order|floatformat:2 }} each)</li>
+                                                {% endfor %}
+                                            </ul>
+
+                                            <div class="mt-3">
+                                                <button class="btn btn-sm btn-warning status-btn" data-order-id="{{ order.id }}" data-new-status="preparing" {% if order.status == 'preparing' %}disabled{% endif %}>Mark as Preparing</button>
+                                                <button class="btn btn-sm btn-success status-btn" data-order-id="{{ order.id }}" data-new-status="completed" {% if order.status == 'completed' %}disabled{% endif %}>Mark as Completed</button>
+                                                <button class="btn btn-sm btn-danger status-btn" data-order-id="{{ order.id }}" data-new-status="cancelled" {% if order.status == 'cancelled' %}disabled{% endif %}>Mark as Cancelled</button>
+                                            </div>
+                                            <div id="message{{ order.id }}" class="mt-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p>No active orders for this restaurant.</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You don't own any restaurants or there are no orders for your restaurants.</p>
+    {% endif %}
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        const csrftoken = getCookie('csrftoken');
+
+        document.querySelectorAll('.status-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                const newStatus = this.dataset.newStatus;
+                const messageDiv = document.getElementById(`message${orderId}`);
+                const orderStatusSpan = document.getElementById(`orderStatus${orderId}`);
+
+                fetch(`/api/v1/orders/${orderId}/`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({ status: newStatus })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => Promise.reject(err));
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    orderStatusSpan.innerHTML = `<strong>${data.status.charAt(0).toUpperCase() + data.status.slice(1)}</strong>`;
+                    messageDiv.innerHTML = `<div class="alert alert-success alert-dismissible fade show" role="alert">Order ${orderId.slice(0,8)}... status updated to ${data.status}! <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+                    
+                    // Disable current button and enable others if applicable
+                    document.querySelectorAll(`.status-btn[data-order-id="${orderId}"]`).forEach(btn => {
+                        btn.disabled = false;
+                    });
+                    this.disabled = true;
+
+                    // If order is completed, remove it from the active list after a short delay
+                    if (newStatus === 'completed') {
+                        setTimeout(() => {
+                            location.reload(); // Simple reload to remove completed order
+                        }, 1500); 
+                    }
+                })
+                .catch(error => {
+                    console.error('Error updating order status:', error);
+                    let errorMessage = 'Error updating order status.';
+                    if (error.detail) {
+                        errorMessage = error.detail;
+                    }
+                    messageDiv.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">${errorMessage} <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>`;
+                });
+            });
+        });
+    });
+</script>
+{% endblock %}

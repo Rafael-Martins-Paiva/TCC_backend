@@ -1,0 +1,63 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-09-17 22:32+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: accounts/managers.py:8
+msgid "O Email deve ser definido"
+msgstr ""
+
+#: accounts/managers.py:21
+msgid "Superuser must have is_staff=True."
+msgstr ""
+
+#: accounts/managers.py:23
+msgid "Superuser must have is_superuser=True."
+msgstr ""
+
+#: accounts/models.py:12
+msgid "email address"
+msgstr ""
+
+#: accounts/models.py:13
+msgid "name"
+msgstr ""
+
+#: accounts/models.py:14
+msgid "biography"
+msgstr ""
+
+#: web/templates/web/features/landing/landing.html:5
+msgid "Landing Page"
+msgstr ""
+
+#: web/templates/web/features/landing/landing.html:14
+msgid "Welcome to the Landing Page!"
+msgstr ""
+
+#: web/templates/web/features/landing/landing.html:15
+msgid "This is a temporary landing page."
+msgstr ""
+
+#: web/templates/web/features/landing/landing.html:16
+msgid "Go to"
+msgstr ""
+
+#: web/templates/web/features/landing/landing.html:16
+msgid "Login"
+msgstr ""

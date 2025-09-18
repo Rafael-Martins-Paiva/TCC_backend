@@ -1,8 +1,9 @@
 
 {% extends 'web/base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Landing Page{% endblock %}
+{% block title %}{% trans "Landing Page" %}{% endblock %}
 
 {% block content %}
     {% include 'web/components/shared/header/header.html' %}
@@ -11,7 +12,7 @@
 
     {% include 'web/components/slide_show/slide_show.html' with title="Say hi to new data" description="Amet minim mollit non deserunt ullamco est sit aliqua dolor do amet sint. Velit officia consequat duis enim velit mollit. Exercitation veniam consequat." tabs=tabs images=images %}
 
-    <h1>Welcome to the Landing Page!</h1>
-    <p>This is a temporary landing page.</p>
-    <p>Go to <a href="{% url 'rest_login' %}">Login</a></p>
+    <h1>{% trans "Welcome to the Landing Page!" %}</h1>
+    <p>{% trans "This is a temporary landing page." %}</p>
+    <p>{% trans "Go to" %} <a href="{% url 'rest_login' %}">{% trans "Login" %}</a></p>
 {% endblock %}

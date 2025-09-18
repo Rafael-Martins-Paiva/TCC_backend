@@ -10,10 +10,12 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView
 
 from accounts.repositories import DjangoUserRepository
+from accounts.models import UserRole
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
 from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError
 from domain.accounts.services.registration_service import RegistrationService
-from restaurants.models import Restaurant, StockItem
+from restaurants.models import Restaurant, StockItem, MenuItem
+from orders.models import Order
 
 from .forms import (
     AddStockItemForm,
@@ -227,8 +229,15 @@ class ManageMenuView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Ensure the restaurant exists and the user is the owner
-        restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_id"], owner=self.request.user)
+        # Ensure the restaurant exists and the user is the owner or an admin
+        restaurant_id = self.kwargs["restaurant_id"]
+        user = self.request.user
+
+        if user.is_authenticated and user.role == "ADMIN":
+            restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+        else:
+            restaurant = get_object_or_404(Restaurant, pk=restaurant_id, owner=user)
+
         context["restaurant"] = restaurant
         return context
 
@@ -293,3 +302,14 @@ class ManageInventoryView(TemplateView):
             messages.error(request, "Invalid data submitted for decreasing stock.")
 
         return self.render_to_response(context)
+
+
+@method_decorator(login_required, name="dispatch")
+class OrderTestView(TemplateView):
+    template_name = "web/order_test.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["restaurants"] = Restaurant.objects.all()
+        context["user_orders"] = Order.objects.filter(user=self.request.user).prefetch_related('items__menu_item')
+        return context

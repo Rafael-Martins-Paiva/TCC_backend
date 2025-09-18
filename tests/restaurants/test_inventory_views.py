@@ -3,6 +3,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from accounts.models import UserRole
 from restaurants.models import InventoryItem, MenuItem, Restaurant
 
 User = get_user_model()
@@ -23,6 +24,8 @@ class InventoryAPITests(APITestCase):
         self.restaurant_other = Restaurant.objects.create(name="Other Restaurant", owner=self.other_user)
         self.menu_item_other = MenuItem.objects.create(restaurant=self.restaurant_other, name="Pizza", price=15.00)
         self.inventory_item_other = InventoryItem.objects.create(menu_item=self.menu_item_other, quantity=30)
+
+        self.client.login(email="test@example.com", password="password123")
 
     def test_list_inventory_items_authenticated(self):
         url = reverse("inventory-item-list-create", kwargs={"restaurant_pk": self.restaurant.pk})

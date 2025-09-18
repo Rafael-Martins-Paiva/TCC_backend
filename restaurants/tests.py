@@ -5,6 +5,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from accounts.models import UserRole
 from .models import MenuItem, Restaurant
 
 User = get_user_model()
@@ -23,6 +24,8 @@ class MenuItemAPITests(APITestCase):
         # Create a menu item for restaurant 1
         self.menu_item1 = MenuItem.objects.create(restaurant=self.restaurant1, name="Pizza", price=12.99)
 
+        self.client.login(email="owner1@example.com", password="password123")
+
     def test_list_menu_items(self):
         """Ensure any user can list menu items for a restaurant."""
         url = reverse("menu-item-list-create", kwargs={"restaurant_pk": self.restaurant1.pk})
@@ -35,6 +38,7 @@ class MenuItemAPITests(APITestCase):
         """Ensure unauthenticated user cannot create a menu item."""
         url = reverse("menu-item-list-create", kwargs={"restaurant_pk": self.restaurant1.pk})
         data = {"name": "Burger", "price": 9.99}
+        self.client.logout()
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 

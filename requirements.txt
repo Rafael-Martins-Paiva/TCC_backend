@@ -10,3 +10,4 @@ djangorestframework
 dj-rest-auth
 django-allauth
 tzdata
+sentry-sdk

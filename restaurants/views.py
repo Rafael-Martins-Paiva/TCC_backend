@@ -1,13 +1,18 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import DetailView
+from django.views.generic import DetailView, TemplateView
 from rest_framework import generics, permissions, serializers, status
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
+from orders.models import Order
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
 
+from accounts.permissions import IsRestaurantOwnerOrAdmin
 from .models import InventoryItem, MenuItem, Restaurant, Review
-from .permissions import IsInventoryItemOwner, IsOwner, IsRestaurantOwnerOrReadOnly
+from .permissions import IsInventoryItemOwner, IsOwner, IsRestaurantOwnerOrReadOnly, IsRestaurantOwnerForCreate, IsInventoryItemOwnerForCreate
 from .serializers import (
     InventoryItemSerializer,
     MenuItemSerializer,
@@ -55,13 +60,12 @@ class RestaurantRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIVi
 
     queryset = Restaurant.objects.all()
     serializer_class = RestaurantSerializer
-    permission_classes = [permissions.IsAuthenticated, IsOwner]
 
     def get_permissions(self):
         if self.request.method == "GET":
             # Allow any authenticated user to view a restaurant.
             return [permissions.IsAuthenticated()]
-        # But only the owner can update or delete.
+        # Only the owner or admin can update or delete.
         return [permissions.IsAuthenticated(), IsOwner()]
 
 
@@ -130,7 +134,7 @@ class MenuItemListCreateAPIView(generics.ListCreateAPIView):
 
     authentication_classes = [SessionAuthentication]
     serializer_class = MenuItemSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRestaurantOwnerForCreate]
 
     def get_queryset(self):
         restaurant_pk = self.kwargs["restaurant_pk"]
@@ -139,9 +143,6 @@ class MenuItemListCreateAPIView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         restaurant_pk = self.kwargs["restaurant_pk"]
         restaurant = get_object_or_404(Restaurant, pk=restaurant_pk)
-        # Check if the user is the owner of the restaurant
-        if self.request.user != restaurant.owner:
-            raise PermissionDenied("You do not have permission to add menu items to this restaurant.")
         serializer.save(restaurant=restaurant)
 
 
@@ -226,7 +227,7 @@ class InventoryItemListCreateAPIView(generics.ListCreateAPIView):
 
     authentication_classes = [SessionAuthentication]
     serializer_class = InventoryItemSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, IsInventoryItemOwnerForCreate]
 
     def get_queryset(self):
         restaurant_pk = self.kwargs["restaurant_pk"]
@@ -242,10 +243,6 @@ class InventoryItemListCreateAPIView(generics.ListCreateAPIView):
         # Check if an InventoryItem already exists for this MenuItem
         if InventoryItem.objects.filter(menu_item=menu_item).exists():
             raise serializers.ValidationError({"menu_item": "Inventory item already exists for this menu item."})
-
-        # Check if the user owns the restaurant of the menu item
-        if self.request.user != menu_item.restaurant.owner:
-            raise PermissionDenied("You do not have permission to manage inventory for this menu item.")
 
         serializer.save(menu_item=menu_item)
 
@@ -273,3 +270,28 @@ class InventoryItemRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
         obj = get_object_or_404(queryset, **filter_kwargs)
         self.check_object_permissions(self.request, obj)
         return obj
+
+
+@method_decorator(login_required, name="dispatch")
+class RestaurantOrderManagementView(TemplateView):
+    template_name = "restaurants/order_management.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user_restaurants = self.request.user.restaurants.all()
+        
+        # Fetch orders for all restaurants owned by the current user
+        # Exclude completed orders from the main list
+        active_orders = Order.objects.filter(
+            restaurant__in=user_restaurants
+        ).exclude(status='completed').order_by('created_at').prefetch_related('items__menu_item')
+
+        # Group orders by restaurant
+        orders_by_restaurant = {}
+        for order in active_orders:
+            if order.restaurant.name not in orders_by_restaurant:
+                orders_by_restaurant[order.restaurant.name] = []
+            orders_by_restaurant[order.restaurant.name].append(order)
+
+        context['orders_by_restaurant'] = orders_by_restaurant
+        return context

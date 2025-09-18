@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from accounts.models import User
+from accounts.models import User, UserRole
 
 
 class UserModelTest(TestCase):
@@ -10,9 +10,11 @@ class UserModelTest(TestCase):
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
 
-        user.is_admin = True
+        user.role = UserRole.ADMIN
         user.save()
+        user.refresh_from_db()
 
+        self.assertEqual(user.role, UserRole.ADMIN)
         self.assertTrue(user.is_admin)
         self.assertTrue(user.is_staff)
         self.assertTrue(user.is_superuser)

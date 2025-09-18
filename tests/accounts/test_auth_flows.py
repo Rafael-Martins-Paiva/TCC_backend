@@ -53,6 +53,7 @@ class AuthFlowsAPITest(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.data["detail"], "Token inválido ou expirado.")
 
+    @patch('core.decorators.rate_limit', lambda *args, **kwargs: lambda func: func)
     @patch("accounts.views.EmailVerificationService")
     @patch("domain.accounts.services.email_verification_service.dispatcher.dispatch")
     def test_resend_verification_email_success(self, mock_dispatch, mock_email_verification_service):

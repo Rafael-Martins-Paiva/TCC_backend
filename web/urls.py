@@ -1,6 +1,6 @@
 from django.urls import path
 
-from restaurants.views import RestaurantDetailView  # Import the class-based view
+from restaurants.views import RestaurantDetailView, RestaurantOrderManagementView  # Import the class-based view
 
 from .views import (
     ManageInventoryView,
@@ -12,6 +12,7 @@ from .views import (
     restaurant_create_view,
     restaurant_list_view,
     wildcard_view,
+    OrderTestView,
 )
 
 app_name = "web"
@@ -27,5 +28,7 @@ urlpatterns = [
     path("restaurants/<uuid:restaurant_id>/manage-menu/", ManageMenuView.as_view(), name="manage_menu"),
     path("restaurants/<uuid:restaurant_id>/manage-inventory/", ManageInventoryView.as_view(), name="manage_inventory"),
     path("paid-plan/", paid_plan_view, name="paid_plan"),
+    path("order-test/", OrderTestView.as_view(), name="order_test"),
+    path("restaurants/orders/manage/", RestaurantOrderManagementView.as_view(), name="restaurant-order-management"),
     path("<str:page_name>/", wildcard_view, name="wildcard"),
 ]

@@ -8,6 +8,9 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import sys
 from pathlib import Path
+from datetime import timedelta
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = "%-8ue@e!raj1_6oo+a@wbwkb%026wz*93d@n*f8o+nsp9$%+^="
@@ -33,6 +36,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "dj_rest_auth.registration",
     "accounts",
+    "orders",
     "restaurants",
     "users",
     "web",
@@ -161,7 +165,11 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True,
 }
 
 BASE_VERIFICATION_URL = "http://localhost:3000"
@@ -237,3 +245,25 @@ LOGGING = {
         },
     },
 }
+
+# ==============================================================================
+# Sentry Configuration (Comentado para evitar problemas de conexão no Termux)
+#
+# Para ativar o Sentry, descomente o bloco abaixo e substitua 'YOUR_SENTRY_DSN'
+# pelo seu DSN real do Sentry.
+# ==============================================================================
+# sentry_sdk.init(
+#     dsn="YOUR_SENTRY_DSN",
+#     integrations=[
+#         DjangoIntegration(),
+#     ],
+#
+#     # Set traces_sample_rate to 1.0 to capture 100%
+#     # of transactions for performance monitoring.
+#     traces_sample_rate=1.0,
+#
+#     # Set profiles_sample_rate to 1.0 to profile 100%
+#     # of sampled transactions.
+#     # We recommend adjusting this value in production.
+#     profiles_sample_rate=1.0,
+# )
