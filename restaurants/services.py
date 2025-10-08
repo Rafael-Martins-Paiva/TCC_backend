@@ -1,5 +1,9 @@
 import bleach
 from django.contrib.auth import get_user_model
+import uuid
+
+from core.qr_codes import QRCodeGenerator
+from restaurants.domain.services import RestaurantURLService
 
 # import re # No longer needed for script tag removal
 from .models import Restaurant
@@ -65,3 +69,14 @@ class UpdateRestaurantContentService:
         restaurant.website_content = sanitized_content
         restaurant.save()
         return restaurant
+
+
+class GenerateRestaurantQRCodeUseCase:
+    def __init__(self, url_service: RestaurantURLService, qr_generator: QRCodeGenerator):
+        self.url_service = url_service
+        self.qr_generator = qr_generator
+
+    def execute(self, restaurant_id: uuid.UUID, base_url: str) -> bytes:
+        restaurant_url = self.url_service.get_public_url(restaurant_id, base_url)
+        qr_code_image_bytes = self.qr_generator.generate(restaurant_url)
+        return qr_code_image_bytes

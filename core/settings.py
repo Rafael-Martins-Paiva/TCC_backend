@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     "restaurants",
     "users",
     "web",
+    "tables",
 ]
 
 
@@ -44,24 +45,6 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1
 
-SOCIALACCOUNT_PROVIDERS = {
-    "google": {
-        "SCOPE": [
-            "profile",
-            "email",
-        ],
-        "AUTH_PARAMS": {
-            "access_type": "online",
-        },
-        "OAUTH_PKCE_ENABLED": True,
-        "APP": {
-            "client_id": "160197012428-jfhsli9au8r8nu4k70pmbv3kqcr105v7.apps.googleusercontent.com",
-            "secret": "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",
-            "key": "",
-        },
-    }
-}
-
 ACCOUNT_LOGIN_METHODS = ["email"]
 ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
@@ -69,8 +52,21 @@ ACCOUNT_SIGNUP_FIELDS = ["email*", "password1*", "password2*"]
 ACCOUNT_FORMS = {"signup": "accounts.forms.CustomSignupForm"}
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None
 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
+
 LOGIN_URL = "/login/"
-LOGIN_REDIRECT_URL = "/accounts/google/callback/"
+LOGIN_REDIRECT_URL = "/"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 AUTH_USER_MODEL = "accounts.User"
@@ -156,7 +152,9 @@ TIME_ZONE = "UTC"
 USE_I18N = True
 USE_TZ = True
 STATIC_URL = "static/"
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField" 
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),

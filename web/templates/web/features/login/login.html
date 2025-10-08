@@ -1,10 +1,12 @@
 {% extends 'web/base.html' %}
 {% load static %}
+{% load socialaccount %}
 
 {% block title %}Login{% endblock %}
 
 {% block extra_head %}
     <link rel="stylesheet" href="{% static 'web/css/features/login/login.css' %}">
+    <script src="//accounts.google.com/gsi/client" async defer></script>
 {% endblock %}
 
 {% block content %}
@@ -53,11 +55,17 @@
         <div class="divider"><span>Or</span></div>
 
         <button class="btnIcon">
-            <a class="signInWith" href="#">
+            <a class="signInWith" href="{% provider_login_url "google" %}">
                 <img src="{% static 'web/img/google-icon.png' %}" alt="Google Icon" class="iconImg">
                 Sign in with Google
             </a>
         </button>
+
+        <div id="g_id_onload"
+             data-client_id="160197012428-jfhsli9au8r8nu4k70pmbv3kqcr105v7.apps.googleusercontent.com"
+             data-login_uri="{% url 'google_login_by_token' %}"
+             data-auto_prompt="false">
+        </div>
 
         <button class="btnIcon">
             <a class="signInWith" href="#">

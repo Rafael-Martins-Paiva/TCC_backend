@@ -2,8 +2,10 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.generic import DetailView, TemplateView
 from rest_framework import generics, permissions, serializers, status
+from rest_framework.parsers import FormParser, MultiPartParser
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from rest_framework.views import APIView
 
 from orders.models import Order
 from rest_framework.authentication import SessionAuthentication
@@ -20,7 +22,9 @@ from .serializers import (
     RestaurantSerializer,
     ReviewSerializer,
 )
-from .services import UpdateRestaurantContentService
+from .services import UpdateRestaurantContentService, GenerateRestaurantQRCodeUseCase
+from restaurants.domain.services import RestaurantURLService
+from core.qr_codes import QRCodeGenerator
 
 
 class RestaurantListAPIView(generics.ListAPIView):
@@ -135,6 +139,7 @@ class MenuItemListCreateAPIView(generics.ListCreateAPIView):
     authentication_classes = [SessionAuthentication]
     serializer_class = MenuItemSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRestaurantOwnerForCreate]
+    parser_classes = (MultiPartParser, FormParser)
 
     def get_queryset(self):
         restaurant_pk = self.kwargs["restaurant_pk"]
@@ -152,6 +157,7 @@ class MenuItemRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView
     authentication_classes = [SessionAuthentication]
     serializer_class = MenuItemSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsRestaurantOwnerOrReadOnly]
+    parser_classes = (MultiPartParser, FormParser)
     lookup_url_kwarg = "menu_item_pk"
 
     def get_queryset(self):
@@ -295,3 +301,27 @@ class RestaurantOrderManagementView(TemplateView):
 
         context['orders_by_restaurant'] = orders_by_restaurant
         return context
+
+
+class RestaurantQRCodeAPIView(APIView):
+    """
+    Generates a QR code for a specific restaurant.
+    """
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+
+    def get(self, request, pk, *args, **kwargs):
+        restaurant = get_object_or_404(Restaurant, pk=pk)
+        self.check_object_permissions(request, restaurant)
+
+        # Construct base_url dynamically from the request
+        # This assumes the API is accessed via a standard HTTP/S request
+        base_url = request.build_absolute_uri('/')[:-1] # Remove trailing slash
+
+        url_service = RestaurantURLService()
+        qr_generator = QRCodeGenerator()
+        use_case = GenerateRestaurantQRCodeUseCase(url_service, qr_generator)
+
+        qr_code_image_bytes = use_case.execute(restaurant_id=restaurant.pk, base_url=base_url)
+
+        return HttpResponse(qr_code_image_bytes, content_type='image/png')

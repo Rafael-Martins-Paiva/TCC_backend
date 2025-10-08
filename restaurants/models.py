@@ -28,6 +28,9 @@ class MenuItem(models.Model):
     is_available = models.BooleanField(default=True)
     ingredients = models.JSONField(default=list, blank=True, help_text="List of ingredients.")
     allergens = models.JSONField(default=list, blank=True, help_text="List of allergens.")
+    cover = models.ImageField(
+        upload_to="menu_items/covers/", blank=True, null=True, help_text="Cover image for the menu item."
+    )
 
     class Meta:
         ordering = ["name"]
@@ -53,6 +56,26 @@ class MenuItem(models.Model):
         ).values_list("name", flat=True)
 
         return list(out_of_stock_items)
+
+
+class MenuItemMedia(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.CASCADE, related_name="media")
+    file = models.FileField(upload_to="menu_items/media/")
+
+    MEDIA_TYPE_CHOICES = [
+        ("image", "Image"),
+        ("video", "Video"),
+    ]
+    media_type = models.CharField(max_length=10, choices=MEDIA_TYPE_CHOICES)
+
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-uploaded_at"]
+
+    def __str__(self):
+        return f"{self.media_type} for {self.menu_item.name}"
 
 
 class Review(models.Model):

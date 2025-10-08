@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>QR Code for Table {{ table.number }}</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
+        }
+        .qr-code-container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        img {
+            max-width: 300px;
+            height: auto;
+            display: block;
+            margin: 0 auto 20px auto;
+            border: 1px solid #eee;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        p {
+            color: #666;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="qr-code-container">
+        <h1>Table {{ table.number }}</h1>
+        <p>Scan the QR code to view the menu and place an order.</p>
+        <img src="{{ table.qr_code_url }}" alt="QR Code for Table {{ table.number }}">
+        <p>Table ID: {{ table.id }}</p>
+    </div>
+</body>
+</html>

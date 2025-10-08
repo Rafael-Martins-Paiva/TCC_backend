@@ -1,5 +1,8 @@
 # 🚀 Guia de Desenvolvimento do Projeto
 
+**ATENÇÃO: Por favor, comunique-se SEMPRE em português.**
+
+
 Este documento estabelece as diretrizes e convenções a serem seguidas no desenvolvimento deste projeto, garantindo consistência, qualidade e manutenibilidade do código.
 
 ---
@@ -31,6 +34,8 @@ A estrutura do projeto é baseada em princípios sólidos que visam a clareza e 
 ---
 
 ## 2. ✨ Qualidade de Código
+
+**ATENÇÃO: Por favor, comunique-se SEMPRE em português.**
 
 A legibilidade e a clareza são prioridades.
 
@@ -82,3 +87,4 @@ Testes são a espinha dorsal da estabilidade da nossa aplicação.
 7.  **Regressão de Bugs:** Ao corrigir um bug, crie um teste que cubra o cenário do bug para evitar que ele ocorra novamente.
 
 > ⚠️ **Filosofia de Teste:** Um bom teste é rigoroso. Ele deve falhar com a menor inconsistência, pois é essa sensibilidade que garante a robustez e a confiança na aplicação.
+**ATENÇÃO: Por favor, comunique-se SEMPRE em português.**

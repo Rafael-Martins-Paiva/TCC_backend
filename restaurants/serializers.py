@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import InventoryItem, MenuItem, Restaurant, Review
+from .models import InventoryItem, MenuItem, MenuItemMedia, Restaurant, Review
 
 
 class RestaurantSerializer(serializers.ModelSerializer):
@@ -16,7 +16,16 @@ class RestaurantContentSerializer(serializers.ModelSerializer):
         fields = ["website_content"]
 
 
+class MenuItemMediaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MenuItemMedia
+        fields = ["id", "file", "media_type", "uploaded_at"]
+        read_only_fields = ["id", "uploaded_at"]
+
+
 class MenuItemSerializer(serializers.ModelSerializer):
+    media = MenuItemMediaSerializer(many=True, read_only=True)
+
     class Meta:
         model = MenuItem
         fields = [
@@ -28,22 +37,10 @@ class MenuItemSerializer(serializers.ModelSerializer):
             "restaurant",
             "ingredients",
             "allergens",
+            "cover",
+            "media",
         ]
         read_only_fields = ["id", "restaurant"]
-
-    def validate_ingredients(self, value):
-        if isinstance(value, str):
-            return [s.strip() for s in value.split(',') if s.strip()]
-        elif isinstance(value, list):
-            return value
-        return [] # Default to empty list if neither string nor list
-
-    def validate_allergens(self, value):
-        if isinstance(value, str):
-            return [s.strip() for s in value.split(',') if s.strip()]
-        elif isinstance(value, list):
-            return value
-        return [] # Default to empty list if neither string nor list
 
 
 class ReviewSerializer(serializers.ModelSerializer):

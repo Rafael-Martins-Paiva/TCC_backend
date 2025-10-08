@@ -14,8 +14,9 @@ from accounts.models import UserRole
 from domain.accounts.aggregates.value_objects.email import InvalidEmailError
 from domain.accounts.exceptions.auth_exceptions import UserAlreadyExistsError
 from domain.accounts.services.registration_service import RegistrationService
-from restaurants.models import Restaurant, StockItem, MenuItem
+from restaurants.models import Restaurant, StockItem, MenuItem, MenuItemMedia
 from orders.models import Order
+from tables.models import Table
 
 from .forms import (
     AddStockItemForm,
@@ -23,6 +24,8 @@ from .forms import (
     LoginForm,
     RegistrationForm,
     RestaurantCreateForm,
+    MenuItemForm,
+    MenuItemMediaForm,
 )
 
 
@@ -239,7 +242,56 @@ class ManageMenuView(TemplateView):
             restaurant = get_object_or_404(Restaurant, pk=restaurant_id, owner=user)
 
         context["restaurant"] = restaurant
+        context["menu_items"] = MenuItem.objects.filter(restaurant=restaurant).select_related('restaurant').prefetch_related('media')
+        context["menu_item_form"] = MenuItemForm()
+        context["menu_item_media_form"] = MenuItemMediaForm()
         return context
+
+    def post(self, request, *args, **kwargs):
+        restaurant_id = self.kwargs["restaurant_id"]
+        user = self.request.user
+
+        if user.is_authenticated and user.role == "ADMIN":
+            restaurant = get_object_or_404(Restaurant, pk=restaurant_id)
+        else:
+            restaurant = get_object_or_404(Restaurant, pk=restaurant_id, owner=user)
+
+        # Handle MenuItemForm submission
+        if "add_menu_item" in request.POST:
+            form = MenuItemForm(request.POST, request.FILES)
+            if form.is_valid():
+                menu_item = form.save(commit=False)
+                menu_item.restaurant = restaurant
+                menu_item.save()
+                messages.success(request, f"Menu item '{menu_item.name}' added successfully!")
+                return redirect("web:manage_menu", restaurant_id=restaurant.pk)
+            else:
+                messages.error(request, "Error adding menu item. Please check the form.")
+                context = self.get_context_data(**kwargs)
+                context["menu_item_form"] = form  # Pass the form with errors back to the template
+                return self.render_to_response(context)
+
+        # Handle MenuItemMediaForm submission
+        elif "add_media_item" in request.POST:
+            menu_item_id = request.POST.get("menu_item_id")
+            menu_item = get_object_or_404(MenuItem, pk=menu_item_id, restaurant=restaurant)
+            form = MenuItemMediaForm(request.POST, request.FILES)
+            if form.is_valid():
+                media_item = form.save(commit=False)
+                media_item.menu_item = menu_item
+                media_item.save()
+                messages.success(request, "Media item added successfully!")
+                return redirect("web:manage_menu", restaurant_id=restaurant.pk)
+            else:
+                messages.error(request, "Error adding media item. Please check the form.")
+                context = self.get_context_data(**kwargs)
+                context["menu_item_media_form"] = form  # Pass the form with errors back to the template
+                return self.render_to_response(context)
+
+        # Handle editing existing menu items (if implemented)
+        # This would require a separate form for each menu item or a formset.
+        # For now, we'll just redirect if no specific action is matched.
+        return redirect("web:manage_menu", restaurant_id=restaurant.pk)
 
 
 @method_decorator(login_required, name="dispatch")
@@ -313,3 +365,22 @@ class OrderTestView(TemplateView):
         context["restaurants"] = Restaurant.objects.all()
         context["user_orders"] = Order.objects.filter(user=self.request.user).prefetch_related('items__menu_item')
         return context
+
+
+@method_decorator(login_required, name="dispatch")
+class ManageTablesView(TemplateView):
+    template_name = "web/manage_tables.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        restaurant = get_object_or_404(Restaurant, pk=self.kwargs["restaurant_id"], owner=self.request.user)
+        context["restaurant"] = restaurant
+        return context
+
+
+def table_qr_code_view(request, table_uuid):
+    table = get_object_or_404(Table, pk=table_uuid)
+    context = {
+        'table': table,
+    }
+    return render(request, "web/table_qr_code.html", context)

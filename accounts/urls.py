@@ -7,10 +7,10 @@ from .views import (
     ChangePasswordAPIView,
     CustomTokenObtainPairView,
     EmailVerificationAPIView,
-    GoogleLoginCallbackView,
     LogoutView,
     ResendVerificationEmailAPIView,
     UserRegistrationAPIView,
+    GetAuthTokenView,
 )
 
 urlpatterns = [
@@ -21,5 +21,6 @@ urlpatterns = [
     path("logout/", LogoutView.as_view(), name="logout"),
     path("token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
-    path("google/login/", GoogleLoginCallbackView.as_view(), name="google_login"),
+    
+    path("get-auth-token/", GetAuthTokenView.as_view(), name="get-auth-token"),
 ]

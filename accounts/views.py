@@ -1,6 +1,4 @@
 from django.conf import settings
-from google.auth.transport import requests
-from google.oauth2 import id_token
 from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -158,41 +156,16 @@ class LogoutView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GoogleLoginCallbackView(APIView):
-    permission_classes = [AllowAny]
 
-    @rate_limit(max_calls=10, window=60)
-    def post(self, request, *args, **kwargs):
-        token = request.data.get("id_token")
-        if not token:
-            return Response({"error": "ID token is required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            client_id = settings.SOCIALACCOUNT_PROVIDERS["google"]["APP"]["client_id"]
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), client_id)
 
-            email = idinfo["email"]
-            name = idinfo.get("name", "")
+class GetAuthTokenView(APIView):
+    permission_classes = [IsAuthenticated]
 
-            try:
-                user = User.objects.get(email=email)
-            except User.DoesNotExist:
-                user = User.objects.create_user(email=email, name=name, password=None)
-                user.is_verified = True
-                user.save()
-
-            refresh = RefreshToken.for_user(user)
-            return Response(
-                {
-                    "refresh": str(refresh),
-                    "access": str(refresh.access_token),
-                    "user": {
-                        "id": user.id,
-                        "email": user.email,
-                        "name": user.name,
-                    },
-                }
-            )
-
-        except ValueError as e:
-            return Response({"error": f"Invalid token: {e}"}, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        refresh = RefreshToken.for_user(user)
+        return Response({
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        })

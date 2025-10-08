@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Table {{ table.table_number }} QR Code</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+        #qrcode { margin: 20px auto; width: 200px; height: 200px; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+</head>
+<body>
+    <h1>Table {{ table.table_number }}</h1>
+    <p>Scan this QR code to view table details or place an order.</p>
+    <canvas id="qrcode"></canvas>
+
+    <script>
+        const tableQRCodeUrl = "{{ table.qr_code_url }}";
+
+        if (tableQRCodeUrl) {
+            new QRious({
+                element: document.getElementById('qrcode'),
+                value: tableQRCodeUrl,
+                size: 200,
+            });
+        }
+    </script>
+</body>
+</html>

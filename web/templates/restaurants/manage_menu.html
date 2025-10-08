@@ -18,7 +18,7 @@
                 <h5 id="form-title">Add New Item</h5>
             </div>
             <div class="card-body">
-                <form id="menu-item-form">
+                <form id="menu-item-form" enctype="multipart/form-data">
                     <input type="hidden" id="item-id">
                     <div class="mb-3">
                         <label for="item-name" class="form-label">Name</label>
@@ -40,9 +40,62 @@
                         <label for="item-allergens" class="form-label">Allergens</label>
                         <textarea class="form-control" id="item-allergens" rows="2" placeholder="e.g., gluten, lactose, nuts"></textarea>
                     </div>
+                    <div class="mb-3">
+                        <label for="item-cover-image" class="form-label">Cover Image</label>
+                        <input type="file" class="form-control" id="item-cover" accept="image/*">
+                        <div id="current-cover-image-preview" class="mt-2"></div>
+                    </div>
                     <button type="submit" class="btn btn-primary">Save Item</button>
                     <button type="button" class="btn btn-secondary" id="cancel-edit-btn" style="display: none;">Cancel Edit</button>
                 </form>
+            </div>
+        </div>
+
+        <!-- Form for adding media to a menu item -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Add Gallery Images/Media</h5>
+            </div>
+            <div class="card-body">
+                <form id="media-item-form" enctype="multipart/form-data" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="add_media_item" value="true">
+                    <div class="mb-3">
+                        <label for="media-menu-item-id" class="form-label">Select Menu Item</label>
+                        <select class="form-select" id="media-menu-item-id" name="menu_item_id" required>
+                            <option value="">-- Select an item --</option>
+                            {% for item in menu_items %}
+                                <option value="{{ item.id }}">{{ item.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="media-file" class="form-label">Media File</label>
+                        <input type="file" class="form-control" id="media-file" name="file" accept="image/*,video/*" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="media-type" class="form-label">Media Type</label>
+                        <select class="form-select" id="media-type" name="media_type" required>
+                            <option value="image">Image</option>
+                            <option value="video">Video</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">Upload Media</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- QR Code Generation -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5>Generate Restaurant QR Code</h5>
+            </div>
+            <div class="card-body">
+                <button type="button" class="btn btn-info" id="generate-qr-btn">Generate QR Code</button>
+                <div id="qr-code-display" class="mt-3 text-center" style="display: none;">
+                    <img id="qr-code-img" src="" alt="Restaurant QR Code" class="img-fluid" style="max-width: 200px;">
+                    <p class="mt-2"><a id="download-qr-btn" href="#" download="restaurant_qr_code.png" class="btn btn-success btn-sm">Download QR Code</a></p>
+                </div>
             </div>
         </div>
 
@@ -66,6 +119,10 @@
             const itemPriceInput = document.getElementById('item-price');
             const itemIngredientsInput = document.getElementById('item-ingredients');
             const itemAllergensInput = document.getElementById('item-allergens');
+            const itemCoverImageInput = document.getElementById('item-cover-image');
+            const currentCoverImagePreview = document.getElementById('current-cover-image-preview');
+            const itemGalleryImagesInput = document.getElementById('item-gallery-images');
+            const currentGalleryImagesPreview = document.getElementById('current-gallery-images-preview');
             const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
             // Function to get CSRF token from cookies
@@ -85,8 +142,8 @@
             }
             const csrftoken = getCookie('csrftoken');
 
+            // Headers for API requests (without Content-Type for FormData)
             const apiHeaders = {
-                'Content-Type': 'application/json',
                 'X-CSRFToken': csrftoken
             };
 
@@ -109,12 +166,28 @@
                     const itemCard = `
                         <div class="col-md-4 mb-4">
                             <div class="card">
+                                ${item.cover ? `<img src="${item.cover}" class="card-img-top" alt="${item.name} Cover">` : ''}
                                 <div class="card-body">
                                     <h5 class="card-title">${item.name}</h5>
                                     <p class="card-text">${item.description}</p>
                                     <p class="card-text"><strong>Price:</strong> R$ ${item.price}</p>
                                     ${item.ingredients ? `<p class="card-text"><strong>Ingredients:</strong> ${item.ingredients}</p>` : ''}
                                     ${item.allergens ? `<p class="card-text"><strong>Allergens:</strong> ${item.allergens}</p>` : ''}
+                                    ${item.media && item.media.length > 0 ? `
+                                        <div class="mt-2">
+                                            <h6>Gallery:</h6>
+                                            <div class="d-flex flex-wrap">
+                                                ${item.media.map(mediaItem => {
+                                                    if (mediaItem.media_type === 'image') {
+                                                        return `<img src="${mediaItem.file}" alt="Gallery image" class="img-thumbnail me-1 mb-1" style="width: 50px; height: 50px; object-fit: cover;">`;
+                                                    } else if (mediaItem.media_type === 'video') {
+                                                        return `<video src="${mediaItem.file}" controls class="img-thumbnail me-1 mb-1" style="width: 50px; height: 50px; object-fit: cover;"></video>`;
+                                                    }
+                                                    return '';
+                                                }).join('')}
+                                            </div>
+                                        </div>
+                                    ` : ''}
                                     <button class="btn btn-sm btn-primary edit-btn" data-id="${item.id}">Edit</button>
                                     <button class="btn btn-sm btn-danger delete-btn" data-id="${item.id}">Delete</button>
                                 </div>
@@ -139,27 +212,50 @@
                 e.preventDefault();
                 const itemId = itemIdInput.value;
                 const url = itemId ? `/api/v1/restaurants/${restaurantId}/menu-items/${itemId}/` : `/api/v1/restaurants/${restaurantId}/menu-items/`;
-                const method = itemId ? 'PUT' : 'POST';
+                const method = itemId ? 'PATCH' : 'POST'; // Use PATCH for partial updates
 
-                const formData = {
-                    name: itemNameInput.value,
-                    description: itemDescriptionInput.value,
-                    price: itemPriceInput.value,
-                    ingredients: itemIngredientsInput.value,
-                    allergens: itemAllergensInput.value
-                };
+                const formData = new FormData();
+                formData.append('name', itemNameInput.value);
+                formData.append('description', itemDescriptionInput.value);
+                formData.append('price', itemPriceInput.value);
+                const rawIngredients = itemIngredientsInput.value.trim();
+                if (rawIngredients) {
+                    const ingredientsArray = rawIngredients.split(',').map(item => item.trim()).filter(item => item !== '');
+                    formData.append('ingredients', JSON.stringify(ingredientsArray));
+                } else {
+                    formData.append('ingredients', '[]'); // Send an empty JSON array for blank input
+                }
+
+                const rawAllergens = itemAllergensInput.value.trim();
+                if (rawAllergens) {
+                    const allergensArray = rawAllergens.split(',').map(item => item.trim()).filter(item => item !== '');
+                    formData.append('allergens', JSON.stringify(allergensArray));
+                } else {
+                    formData.append('allergens', '[]'); // Send an empty JSON array for blank input
+                }
+
+                if (itemCoverImageInput.files.length > 0) {
+                    formData.append('cover', itemCoverImageInput.files[0]);
+                }
+                
 
                 fetch(url, {
                     method: method,
-                    headers: apiHeaders,
-                    body: JSON.stringify(formData)
+                    headers: apiHeaders, // Content-Type will be set automatically by browser for FormData
+                    body: formData
                 })
                 .then(response => {
                     if (response.ok) {
                         fetchMenuItems();
                         resetForm();
+                        alert('Item saved successfully!');
                     } else {
-                        alert('An error occurred. Please try again.');
+                        response.json().then(errorData => {
+                            console.error('Error:', errorData);
+                            alert('An error occurred: ' + JSON.stringify(errorData));
+                        }).catch(() => {
+                            alert('An unknown error occurred.');
+                        });
                     }
                 });
             });
@@ -181,6 +277,18 @@
                             itemPriceInput.value = item.price;
                             itemIngredientsInput.value = item.ingredients;
                             itemAllergensInput.value = item.allergens;
+
+                            // Display current cover image
+                            currentCoverImagePreview.innerHTML = item.cover ? `<p>Current Cover: <img src="${item.cover}" style="max-width: 100px; max-height: 100px;"></p>` : '';
+                            // Display current gallery images
+                            if (item.media && item.media.length > 0) {
+                                currentGalleryImagesPreview.innerHTML = '<p>Current Gallery:</p><div class="d-flex flex-wrap">' +
+                                    item.media.map(img => `<img src="${img.file}" class="img-thumbnail me-1 mb-1" style="width: 50px; height: 50px; object-fit: cover;">`).join('') +
+                                    '</div>';
+                            } else {
+                                currentGalleryImagesPreview.innerHTML = '';
+                            }
+
                             cancelEditBtn.style.display = 'inline-block';
                             window.scrollTo(0, 0); // Scroll to top to see the form
                         });
@@ -210,8 +318,43 @@
                 form.reset();
                 formTitle.textContent = 'Add New Item';
                 itemIdInput.value = '';
+                itemCoverImageInput.value = ''; // Clear file input
+                itemGalleryImagesInput.value = ''; // Clear file input
+                currentCoverImagePreview.innerHTML = ''; // Clear preview
+                currentGalleryImagesPreview.innerHTML = ''; // Clear preview
                 cancelEditBtn.style.display = 'none';
             }
+
+            // QR Code Generation
+            const generateQrBtn = document.getElementById('generate-qr-btn');
+            const qrCodeDisplay = document.getElementById('qr-code-display');
+            const qrCodeImg = document.getElementById('qr-code-img');
+            const downloadQrBtn = document.getElementById('download-qr-btn');
+
+            generateQrBtn.addEventListener('click', function() {
+                fetch(`/api/v1/restaurants/${restaurantId}/qr-code/`, {
+                    method: 'GET',
+                    headers: apiHeaders
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob(); // Get the response as a Blob
+                    } else {
+                        throw new Error('Failed to generate QR code.');
+                    }
+                })
+                .then(qrBlob => {
+                    const imageUrl = URL.createObjectURL(qrBlob);
+                    qrCodeImg.src = imageUrl;
+                    downloadQrBtn.href = imageUrl;
+                    qrCodeDisplay.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Error generating QR code:', error);
+                    alert('Error generating QR code: ' + error.message);
+                    qrCodeDisplay.style.display = 'none';
+                });
+            });
 
             // Initial fetch
             fetchMenuItems();

@@ -56,6 +56,24 @@
                     <h3>{{ item.name }}</h3>
                 </div>
                 <div class="card-body">
+                    {% if item.cover %}
+                        <img src="{{ item.cover.url }}" class="card-img-top" alt="{{ item.name }} Cover">
+                    {% endif %}
+
+                    {% if item.media.all %}
+                        <div class="mt-2">
+                            <h6>Gallery:</h6>
+                            <div class="d-flex flex-wrap">
+                                {% for media_item in item.media.all %}
+                                    {% if media_item.media_type == 'image' %}
+                                        <img src="{{ media_item.file.url }}" alt="Gallery image" class="img-thumbnail me-1 mb-1" style="width: 50px; height: 50px; object-fit: cover;">
+                                    {% elif media_item.media_type == 'video' %}
+                                        <video src="{{ media_item.file.url }}" controls class="img-thumbnail me-1 mb-1" style="width: 50px; height: 50px; object-fit: cover;"></video>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
                     {% with unavailable_ingredients=item.get_unavailable_ingredients %}
                         {% if unavailable_ingredients %}
                             <div class="alert alert-warning mt-2">

@@ -9,6 +9,6 @@ def run():
         user.save()
         print(f"User {user.email} updated to ADMIN role successfully.")
     except User.DoesNotExist:
-        print("User with email Rafael.martinsner@g.com does not exist.")
+        print("User with email rafael.martins6431@gmail.com does not exist.")
     except Exception as e:
         print(f"An error occurred: {e}")

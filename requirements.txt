@@ -2,7 +2,7 @@
 
 # Security
 bleach
-google-auth
+
 
 # Core
 django-hosts
@@ -11,3 +11,5 @@ dj-rest-auth
 django-allauth
 tzdata
 sentry-sdk
+qrcode
+Pillow

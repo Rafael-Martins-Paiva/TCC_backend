@@ -14,6 +14,7 @@ from .views import (
     RestaurantRetrieveUpdateDestroyAPIView,
     RestaurantReviewListCreateAPIView,
     RestaurantSubdomainView,
+    RestaurantQRCodeAPIView,
 )
 
 urlpatterns = [
@@ -22,6 +23,7 @@ urlpatterns = [
     path("restaurants/my-restaurants/", MyRestaurantsListAPIView.as_view(), name="my-restaurant-list"),
     path("restaurants/create/", RestaurantCreateAPIView.as_view(), name="restaurant-create"),
     path("restaurants/<uuid:pk>/", RestaurantRetrieveUpdateDestroyAPIView.as_view(), name="restaurant-detail"),
+    path("restaurants/<uuid:pk>/qr-code/", RestaurantQRCodeAPIView.as_view(), name="restaurant-qr-code"),
     path("restaurants/<uuid:pk>/content/", RestaurantContentUpdateAPIView.as_view(), name="restaurant-content-update"),
     path("restaurants/<uuid:pk>/content/view/", RestaurantContentView.as_view(), name="restaurant-content-view"),
     path(
